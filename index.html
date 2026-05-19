@@ -4,93 +4,256 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Qurbani for Allah</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
+  <div class="night-sky" aria-hidden="true"></div>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#dashboard" aria-label="Qurbani for Allah home">
+        <span class="brand-mark">Q</span>
+        <span>
+          <strong>Qurbani for Allah</strong>
+          <small>Eid-ul-Adha manager</small>
+        </span>
+      </a>
+      <nav class="nav-tabs" aria-label="Primary navigation">
+        <button class="nav-link active" data-view="dashboard">Dashboard</button>
+        <button class="nav-link" data-view="expense">Expense</button>
+        <button class="nav-link" data-view="distribution">Distribution</button>
+        <button class="nav-link" data-view="masail">Masail</button>
+        <button class="nav-link" data-view="summary">Summary</button>
+      </nav>
+    </header>
 
-<header>
-  <h1>🕌 Qurbani for Allah 🐄</h1>
+    <main>
+      <section class="view active" id="dashboard" aria-labelledby="dashboard-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Dashboard</p>
+            <h1 id="dashboard-title">Qurbani for Allah</h1>
+            <p class="lead">Track costs, shareholders, meat recipients, and delivery status in one clean place.</p>
+          </div>
+          <div class="quick-actions">
+            <button class="ghost-button" id="exportDataBtn" type="button">Export JSON</button>
+            <label class="ghost-button file-button" for="importDataInput">Import JSON</label>
+            <input id="importDataInput" type="file" accept="application/json">
+          </div>
+        </div>
 
-  <nav>
-    <button onclick="showTab('dashboard')">Dashboard</button>
-    <button onclick="showTab('expense')">Expense</button>
-    <button onclick="showTab('distribution')">Distribution</button>
-    <button onclick="showTab('masail')">Masail</button>
-  </nav>
-</header>
+        <div class="metric-grid">
+          <article class="metric-card glow-blue">
+            <span>Total Expense</span>
+            <strong id="dashTotalExpense">$0.00</strong>
+            <small>Animal and extra costs</small>
+          </article>
+          <article class="metric-card glow-gold">
+            <span>Per Person Cost</span>
+            <strong id="dashPerPerson">$0.00</strong>
+            <small>Based on shareholders</small>
+          </article>
+          <article class="metric-card glow-green">
+            <span>Total Recipients</span>
+            <strong id="dashRecipients">0</strong>
+            <small>Everyone on the checklist</small>
+          </article>
+          <article class="metric-card glow-red">
+            <span>Pending Deliveries</span>
+            <strong id="dashPending">0</strong>
+            <small>No recipient forgotten</small>
+          </article>
+        </div>
 
-<main>
+        <div class="dashboard-grid">
+          <article class="panel">
+            <div class="panel-title">
+              <h2>Expense Breakdown</h2>
+              <button class="text-button" data-jump="expense" type="button">Manage</button>
+            </div>
+            <div class="breakdown-list" id="dashboardBreakdown"></div>
+          </article>
+          <article class="panel">
+            <div class="panel-title">
+              <h2>Distribution Status</h2>
+              <button class="text-button" data-jump="distribution" type="button">Manage</button>
+            </div>
+            <div class="status-bars">
+              <div>
+                <span>Delivered</span>
+                <strong id="deliveredCount">0</strong>
+                <div class="bar"><span id="deliveredBar"></span></div>
+              </div>
+              <div>
+                <span>Pending</span>
+                <strong id="pendingCount">0</strong>
+                <div class="bar pending"><span id="pendingBar"></span></div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
 
-  <!-- DASHBOARD -->
-  <section id="dashboard" class="tab active">
-    <h2>Dashboard</h2>
+      <section class="view" id="expense" aria-labelledby="expense-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Expense Tracker</p>
+            <h1 id="expense-title">Cost planning</h1>
+            <p class="lead">Add animal cost, extra expenses, shareholder count, and contributor names.</p>
+          </div>
+        </div>
 
-    <div class="stats-grid">
-      <div class="card" id="totalExpense">0 BDT</div>
-      <div class="card" id="perShare">0 BDT</div>
-      <div class="card" id="recipientCount">0 Recipients</div>
-    </div>
-  </section>
+        <div class="work-grid">
+          <form class="panel form-panel" id="expenseForm">
+            <div class="form-row">
+              <label for="animalType">Animal type</label>
+              <select id="animalType">
+                <option value="Cow">Cow</option>
+                <option value="Goat">Goat</option>
+                <option value="Sheep">Sheep</option>
+                <option value="Buffalo">Buffalo</option>
+                <option value="Camel">Camel</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label for="animalCost">Animal cost</label>
+              <input id="animalCost" type="number" min="0" step="0.01" placeholder="0">
+            </div>
+            <div class="form-row two-col">
+              <div>
+                <label for="butcherCost">Butcher cost</label>
+                <input id="butcherCost" type="number" min="0" step="0.01" placeholder="0">
+              </div>
+              <div>
+                <label for="transportCost">Transport cost</label>
+                <input id="transportCost" type="number" min="0" step="0.01" placeholder="0">
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="otherCost">Other expenses</label>
+              <input id="otherCost" type="number" min="0" step="0.01" placeholder="0">
+            </div>
+            <div class="form-row">
+              <label for="shareholders">Number of shareholders</label>
+              <input id="shareholders" type="number" min="1" max="7" step="1" placeholder="1">
+            </div>
+            <div class="form-row">
+              <label for="contributors">Contributor names</label>
+              <textarea id="contributors" rows="5" placeholder="One name per line"></textarea>
+            </div>
+            <button class="primary-button" type="submit">Save Expense</button>
+          </form>
 
-  <!-- EXPENSE -->
-  <section id="expense" class="tab">
-    <h2>Expense Tracker</h2>
+          <aside class="panel summary-panel">
+            <h2>Full breakdown</h2>
+            <div class="mini-metrics">
+              <div><span>Total cost</span><strong id="expenseTotal">$0.00</strong></div>
+              <div><span>Per person</span><strong id="expensePerPerson">$0.00</strong></div>
+              <div><span>Shareholders</span><strong id="expenseShareholders">1</strong></div>
+            </div>
+            <div class="breakdown-list" id="expenseBreakdown"></div>
+          </aside>
+        </div>
+      </section>
 
-    <div class="form-box">
-      <input id="expName" placeholder="Expense Name">
-      <input id="expCost" type="number" placeholder="Cost">
-      <input id="expShare" type="number" placeholder="Shares">
-      <button onclick="addExpense()">Add Expense</button>
-    </div>
+      <section class="view" id="distribution" aria-labelledby="distribution-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Meat Distribution</p>
+            <h1 id="distribution-title">Recipient checklist</h1>
+            <p class="lead">Use 1-7 shares and delivery checkboxes so every recipient stays visible until complete.</p>
+          </div>
+        </div>
 
-    <div id="expenseList"></div>
-  </section>
+        <div class="work-grid">
+          <form class="panel form-panel" id="recipientForm">
+            <div class="form-row">
+              <label for="recipientName">Recipient name</label>
+              <input id="recipientName" type="text" placeholder="Example: Family group" required>
+            </div>
+            <div class="form-row two-col">
+              <div>
+                <label for="recipientCategory">Category</label>
+                <select id="recipientCategory">
+                  <option value="Family">Family</option>
+                  <option value="Relatives">Relatives</option>
+                  <option value="Needy people">Needy people</option>
+                  <option value="Neighbours">Neighbours</option>
+                </select>
+              </div>
+              <div>
+                <label for="recipientShares">Shares</label>
+                <input id="recipientShares" type="number" min="1" max="7" step="1" value="1">
+              </div>
+            </div>
+            <button class="primary-button" type="submit">Add Recipient</button>
+          </form>
 
-  <!-- DISTRIBUTION -->
-  <section id="distribution" class="tab">
-    <h2>Meat Distribution</h2>
+          <aside class="panel">
+            <div class="panel-title">
+              <h2>Delivery overview</h2>
+              <span class="status-pill" id="overallStatus">Pending</span>
+            </div>
+            <div class="mini-metrics">
+              <div><span>Total shares</span><strong id="totalRecipientShares">0</strong></div>
+              <div><span>Delivered</span><strong id="distributionDelivered">0</strong></div>
+              <div><span>Pending</span><strong id="distributionPending">0</strong></div>
+            </div>
+          </aside>
+        </div>
 
-    <div class="form-box">
-      <input id="recName" placeholder="Recipient Name">
-      <button onclick="addRecipient()">Add Recipient</button>
-    </div>
+        <div class="panel checklist-panel">
+          <div class="panel-title">
+            <h2>No recipient should be forgotten</h2>
+            <button class="ghost-button small" id="clearDeliveredBtn" type="button">Clear Delivered</button>
+          </div>
+          <div class="recipient-list" id="recipientList"></div>
+        </div>
+      </section>
 
-    <div id="recipientList"></div>
-  </section>
+      <section class="view masail-view" id="masail" aria-labelledby="masail-title">
+        <div class="section-head bangla">
+          <div>
+            <p class="eyebrow">মাসআলা</p>
+            <h1 id="masail-title">কুরবানির প্রয়োজনীয় মাসআলা</h1>
+            <p class="lead">প্রতিটি বিষয় কার্ডে চাপ দিলে বিস্তারিত দেখা যাবে।</p>
+          </div>
+        </div>
+        <div class="masail-grid" id="masailGrid"></div>
+      </section>
 
-  <!-- MASAIL -->
-  <section id="masail" class="tab">
-    <h2>🕌 মাসায়েল</h2>
+      <section class="view" id="summary" aria-labelledby="summary-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Summary</p>
+            <h1 id="summary-title">Final overview</h1>
+            <p class="lead">A compact review of your Qurbani expense and distribution readiness.</p>
+          </div>
+        </div>
+        <div class="summary-layout">
+          <article class="panel">
+            <h2>Financial summary</h2>
+            <div class="summary-lines" id="summaryFinance"></div>
+          </article>
+          <article class="panel">
+            <h2>Recipient summary</h2>
+            <div class="summary-lines" id="summaryRecipients"></div>
+          </article>
+          <article class="panel">
+            <h2>Contributor list</h2>
+            <div class="tag-list" id="summaryContributors"></div>
+          </article>
+        </div>
+      </section>
+    </main>
 
-    <div class="card">
-      <h3>কার উপর কুরবানি ওয়াজিব</h3>
-      <p>
-        প্রাপ্তবয়স্ক, মুসলিম ও সুস্থ মস্তিষ্কের ব্যক্তির উপর কুরবানি ওয়াজিব।
-      </p>
-    </div>
+    <footer>
+      <span>a small gift from Tahsin Jawad</span>
+    </footer>
+  </div>
 
-    <div class="card">
-      <h3>কোন পশু দিয়ে কুরবানি করা যাবে</h3>
-      <p>
-        গরু, ছাগল, ভেড়া, উট ও মহিষ দ্বারা কুরবানি জায়েজ।
-      </p>
-    </div>
-
-    <div class="card">
-      <h3>ভাগ নিয়ম</h3>
-      <p>
-        গরু/উটে সর্বোচ্চ ৭ ভাগ দেওয়া যায়।
-      </p>
-    </div>
-  </section>
-
-</main>
-
-<footer>
-  <p>a small gift from Tahsin Jawad</p>
-</footer>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

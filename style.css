@@ -1,0 +1,107 @@
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(#0B1320,#0F1C2E);
+  color:white;
+}
+
+header{
+  text-align:center;
+  padding:20px;
+}
+
+h1{
+  color:#D4AF37;
+}
+
+nav{
+  margin-top:15px;
+}
+
+nav button{
+  margin:5px;
+  padding:10px 15px;
+  border:none;
+  border-radius:10px;
+  background:#1B2A41;
+  color:white;
+  cursor:pointer;
+}
+
+nav button:hover{
+  background:#D4AF37;
+  color:black;
+}
+
+.tab{
+  display:none;
+  padding:20px;
+}
+
+.active{
+  display:block;
+}
+
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
+}
+
+.card{
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(212,175,55,0.2);
+  padding:15px;
+  border-radius:15px;
+  margin-top:15px;
+  backdrop-filter:blur(10px);
+}
+
+.form-box{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+input{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  flex:1;
+}
+
+button{
+  padding:10px 15px;
+  border:none;
+  border-radius:10px;
+  background:#D4AF37;
+  color:black;
+  cursor:pointer;
+}
+
+.status{
+  margin-top:10px;
+}
+
+.pending{
+  color:#FF4D4D;
+}
+
+.delivered{
+  color:#2ECC71;
+}
+
+footer{
+  text-align:center;
+  padding:20px;
+  opacity:0.7;
+  color:#D4AF37;
+  font-size:14px;
+}
+
+@media(max-width:600px){
+  nav button{
+    width:100%;
+  }
+}

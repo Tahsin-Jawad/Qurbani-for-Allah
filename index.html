@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Qurbani for Allah</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+  <h1>🕌 Qurbani for Allah 🐄</h1>
+
+  <nav>
+    <button onclick="showTab('dashboard')">Dashboard</button>
+    <button onclick="showTab('expense')">Expense</button>
+    <button onclick="showTab('distribution')">Distribution</button>
+    <button onclick="showTab('masail')">Masail</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="tab active">
+    <h2>Dashboard</h2>
+
+    <div class="stats-grid">
+      <div class="card" id="totalExpense">0 BDT</div>
+      <div class="card" id="perShare">0 BDT</div>
+      <div class="card" id="recipientCount">0 Recipients</div>
+    </div>
+  </section>
+
+  <!-- EXPENSE -->
+  <section id="expense" class="tab">
+    <h2>Expense Tracker</h2>
+
+    <div class="form-box">
+      <input id="expName" placeholder="Expense Name">
+      <input id="expCost" type="number" placeholder="Cost">
+      <input id="expShare" type="number" placeholder="Shares">
+      <button onclick="addExpense()">Add Expense</button>
+    </div>
+
+    <div id="expenseList"></div>
+  </section>
+
+  <!-- DISTRIBUTION -->
+  <section id="distribution" class="tab">
+    <h2>Meat Distribution</h2>
+
+    <div class="form-box">
+      <input id="recName" placeholder="Recipient Name">
+      <button onclick="addRecipient()">Add Recipient</button>
+    </div>
+
+    <div id="recipientList"></div>
+  </section>
+
+  <!-- MASAIL -->
+  <section id="masail" class="tab">
+    <h2>🕌 মাসায়েল</h2>
+
+    <div class="card">
+      <h3>কার উপর কুরবানি ওয়াজিব</h3>
+      <p>
+        প্রাপ্তবয়স্ক, মুসলিম ও সুস্থ মস্তিষ্কের ব্যক্তির উপর কুরবানি ওয়াজিব।
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>কোন পশু দিয়ে কুরবানি করা যাবে</h3>
+      <p>
+        গরু, ছাগল, ভেড়া, উট ও মহিষ দ্বারা কুরবানি জায়েজ।
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>ভাগ নিয়ম</h3>
+      <p>
+        গরু/উটে সর্বোচ্চ ৭ ভাগ দেওয়া যায়।
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>a small gift from Tahsin Jawad</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

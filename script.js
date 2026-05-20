@@ -1,414 +1,392 @@
-// =============================================
-//   Qurbani for Allah — script.js
-//   All app logic + localStorage persistence
-// =============================================
+const STORAGE_KEY = "qurbaniForAllahState";
 
-// ─── STATE & STORAGE ─────────────────────────────────────
-function loadState() {
-  try {
-    const raw = localStorage.getItem('qurbani_state');
-    if (raw) return JSON.parse(raw);
-  } catch (e) {
-    console.warn('Failed to load state:', e);
-  }
-  return { expenses: [], contributors: [], shares: 1, recipients: [] };
-}
+const initialState = {
+  expense: {
+    animalType: "Cow",
+    animalCost: 0,
+    butcherCost: 0,
+    transportCost: 0,
+    otherCost: 0,
+    shareholders: 1,
+    contributors: []
+  },
+  recipients: []
+};
 
-let state = loadState();
-
-function save() {
-  try {
-    localStorage.setItem('qurbani_state', JSON.stringify(state));
-  } catch (e) {
-    toast('⚠️ Could not save — storage may be full');
-  }
-}
-
-// ─── TOAST NOTIFICATION ──────────────────────────────────
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-// ─── NAVIGATION ──────────────────────────────────────────
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-  const idx = ['dashboard', 'expense', 'distribution', 'masail'].indexOf(id);
-  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
-
-  if (id === 'dashboard')    renderDashboard();
-  if (id === 'expense')      renderExpensePage();
-  if (id === 'distribution') renderRecipients('All');
-}
-
-// ─── CONTRIBUTORS ─────────────────────────────────────────
-function addContributor() {
-  const inp = document.getElementById('exp-contrib-name');
-  const name = inp.value.trim();
-  if (!name) return;
-  state.contributors.push(name);
-  inp.value = '';
-  renderContributorTags();
-}
-
-function removeContributor(i) {
-  state.contributors.splice(i, 1);
-  renderContributorTags();
-}
-
-function renderContributorTags() {
-  const el = document.getElementById('contributor-tags');
-  if (!el) return;
-  el.innerHTML = state.contributors.map((c, i) =>
-    `<div class="tag">${c}<span class="tag-remove" onclick="removeContributor(${i})">×</span></div>`
-  ).join('');
-}
-
-// ─── EXPENSES ─────────────────────────────────────────────
-function saveExpense() {
-  const animal    = parseFloat(document.getElementById('exp-animal').value)    || 0;
-  const butcher   = parseFloat(document.getElementById('exp-butcher').value)   || 0;
-  const transport = parseFloat(document.getElementById('exp-transport').value) || 0;
-  const other     = parseFloat(document.getElementById('exp-other').value)     || 0;
-  const desc      = document.getElementById('exp-desc').value.trim();
-  const shares    = parseInt(document.getElementById('exp-shares').value)      || 1;
-  const type      = document.getElementById('exp-type').value;
-
-  if (!animal) { toast('⚠️ Please enter animal cost'); return; }
-
-  const total     = animal + butcher + transport + other;
-  const perPerson = total / shares;
-
-  // Replace any previous entry (single Qurbani model)
-  state.expenses = [{
-    animal, butcher, transport, other,
-    desc, total, perPerson, shares, type,
-    contributors: [...state.contributors],
-    date: new Date().toLocaleDateString()
-  }];
-  state.shares = shares;
-
-  save();
-  renderCostSummary(state.expenses[0]);
-  renderExpenseHistory();
-  toast('✅ Expense saved!');
-}
-
-function renderCostSummary(d) {
-  const el = document.getElementById('cost-summary');
-  if (!el) return;
-  el.innerHTML = `
-    <div class="breakdown-row">
-      <span class="breakdown-label">🐄 ${d.type}</span>
-      <span>৳${d.animal.toLocaleString()}</span>
-    </div>
-    <div class="breakdown-row">
-      <span class="breakdown-label">🔪 Butcher</span>
-      <span>৳${(d.butcher || 0).toLocaleString()}</span>
-    </div>
-    <div class="breakdown-row">
-      <span class="breakdown-label">🚛 Transport</span>
-      <span>৳${(d.transport || 0).toLocaleString()}</span>
-    </div>
-    <div class="breakdown-row">
-      <span class="breakdown-label">📦 Other</span>
-      <span>৳${(d.other || 0).toLocaleString()}</span>
-    </div>
-    <div class="breakdown-row">
-      <span>Total</span>
-      <span>৳${d.total.toLocaleString()}</span>
-    </div>
-    <div style="margin-top:1rem; padding:1rem; background:var(--gold-dim); border:1px solid var(--gold-border); border-radius:8px; text-align:center;">
-      <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em;">
-        Per Person (${d.shares} shareholders)
-      </div>
-      <div style="font-family:'Cinzel',serif; font-size:1.8rem; color:var(--gold); margin-top:4px;">
-        ৳${Math.round(d.perPerson).toLocaleString()}
-      </div>
-    </div>
-  `;
-}
-
-function renderExpenseHistory() {
-  const el  = document.getElementById('expense-list');
-  const btn = document.getElementById('clear-expenses-btn');
-  if (!el) return;
-
-  if (!state.expenses.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>No expenses saved yet</div>';
-    if (btn) btn.style.display = 'none';
-    return;
-  }
-
-  if (btn) btn.style.display = 'block';
-
-  el.innerHTML = state.expenses.map(e => `
-    <div class="expense-item">
-      <div>
-        <div class="expense-name">${e.type} — ${e.date}</div>
-        <div class="expense-type">${e.shares} shareholders${e.desc ? ' · ' + e.desc : ''}</div>
-        ${e.contributors && e.contributors.length
-          ? `<div class="expense-type" style="margin-top:3px;">👥 ${e.contributors.join(', ')}</div>`
-          : ''}
-      </div>
-      <div style="text-align:right;">
-        <div class="expense-amount">৳${e.total.toLocaleString()}</div>
-        <div class="expense-type">৳${Math.round(e.perPerson).toLocaleString()}/person</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function renderExpensePage() {
-  renderContributorTags();
-  renderExpenseHistory();
-
-  // Restore summary if expense exists
-  if (state.expenses.length) {
-    renderCostSummary(state.expenses[0]);
-
-    // Restore form fields from saved data
-    const e = state.expenses[0];
-    const fields = {
-      'exp-type': e.type, 'exp-animal': e.animal,
-      'exp-butcher': e.butcher, 'exp-transport': e.transport,
-      'exp-other': e.other, 'exp-desc': e.desc,
-      'exp-shares': e.shares
-    };
-    Object.entries(fields).forEach(([id, val]) => {
-      const el = document.getElementById(id);
-      if (el && val !== undefined && val !== 0) el.value = val;
-    });
-  }
-}
-
-function clearExpenses() {
-  if (!confirm('Clear all expense data?')) return;
-  state.expenses = [];
-  state.contributors = [];
-  save();
-  renderExpenseHistory();
-  renderContributorTags();
-  const el = document.getElementById('cost-summary');
-  if (el) el.innerHTML = '<div class="empty-state"><div class="empty-icon">🧮</div>Fill in expenses to see summary</div>';
-  toast('🗑 Cleared');
-}
-
-// ─── RECIPIENTS ───────────────────────────────────────────
-function addRecipient() {
-  const name   = document.getElementById('rec-name').value.trim();
-  const cat    = document.getElementById('rec-cat').value;
-  const shares = parseInt(document.getElementById('rec-shares').value) || 1;
-  const notes  = document.getElementById('rec-notes').value.trim();
-
-  if (!name) { toast('⚠️ Enter recipient name'); return; }
-
-  state.recipients.push({ id: Date.now(), name, cat, shares, notes, status: 'Pending' });
-  document.getElementById('rec-name').value  = '';
-  document.getElementById('rec-notes').value = '';
-
-  save();
-  renderRecipients(currentFilter);
-  toast('✅ Recipient added!');
-}
-
-function updateStatus(id, val) {
-  const r = state.recipients.find(r => r.id === id);
-  if (r) { r.status = val; save(); }
-}
-
-function deleteRecipient(id) {
-  state.recipients = state.recipients.filter(r => r.id !== id);
-  save();
-  renderRecipients(currentFilter);
-  toast('🗑 Removed');
-}
-
-let currentFilter = 'All';
-
-function filterRecipients(cat, btn) {
-  currentFilter = cat;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  renderRecipients(cat);
-}
-
-function renderRecipients(cat) {
-  const el   = document.getElementById('recipient-list');
-  if (!el) return;
-
-  const list = cat === 'All'
-    ? state.recipients
-    : state.recipients.filter(r => r.cat === cat);
-
-  if (!list.length) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🌿</div>No recipients in this category yet.</div>';
-    return;
-  }
-
-  const catIcon = { Family: '👨‍👩‍👧', Relatives: '👥', Needy: '🤲', Neighbours: '🏠' };
-
-  el.innerHTML = list.map(r => `
-    <div class="recipient-card" id="rcard-${r.id}">
-      <div class="recipient-info">
-        <div class="recipient-name">${catIcon[r.cat] || '👤'} ${r.name}</div>
-        <div class="recipient-meta">
-          ${r.cat} · ${r.shares} share${r.shares > 1 ? 's' : ''}
-          ${r.notes ? ' · ' + r.notes : ''}
-        </div>
-      </div>
-      <div class="recipient-actions">
-        <span class="status-badge ${
-          r.status === 'Pending'   ? 'status-pending'   :
-          r.status === 'Partial'   ? 'status-partial'   :
-                                     'status-delivered'
-        }">${r.status}</span>
-        <select class="status-select"
-          onchange="updateStatus(${r.id}, this.value); renderRecipients(currentFilter);">
-          <option ${r.status === 'Pending'   ? 'selected' : ''}>Pending</option>
-          <option ${r.status === 'Partial'   ? 'selected' : ''}>Partial</option>
-          <option ${r.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-        </select>
-        <button class="btn btn-red"
-          style="padding:5px 10px; font-size:0.75rem;"
-          onclick="deleteRecipient(${r.id})">✕</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ─── DASHBOARD ────────────────────────────────────────────
-function renderDashboard() {
-  const exp       = state.expenses[0];
-  const total     = exp ? exp.total : 0;
-  const perP      = exp ? Math.round(exp.perPerson) : 0;
-  const recips    = state.recipients.length;
-  const pending   = state.recipients.filter(r => r.status === 'Pending').length;
-  const partial   = state.recipients.filter(r => r.status === 'Partial').length;
-  const delivered = state.recipients.filter(r => r.status === 'Delivered').length;
-
-  document.getElementById('ds-total').textContent   = '৳' + total.toLocaleString();
-  document.getElementById('ds-per').textContent     = '৳' + perP.toLocaleString();
-  document.getElementById('ds-recip').textContent   = recips;
-  document.getElementById('ds-pending').textContent = pending;
-
-  // Expense breakdown
-  const breakEl = document.getElementById('dash-breakdown');
-  if (exp) {
-    breakEl.innerHTML = `
-      <div class="breakdown-row"><span class="breakdown-label">🐄 ${exp.type}</span><span>৳${exp.animal.toLocaleString()}</span></div>
-      <div class="breakdown-row"><span class="breakdown-label">🔪 Butcher</span><span>৳${(exp.butcher||0).toLocaleString()}</span></div>
-      <div class="breakdown-row"><span class="breakdown-label">🚛 Transport</span><span>৳${(exp.transport||0).toLocaleString()}</span></div>
-      <div class="breakdown-row"><span class="breakdown-label">📦 Other</span><span>৳${(exp.other||0).toLocaleString()}</span></div>
-      <div class="breakdown-row"><span>Total</span><span>৳${exp.total.toLocaleString()}</span></div>
-    `;
-  } else {
-    breakEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div>No expenses yet</div>';
-  }
-
-  // Delivery progress
-  const pct = recips > 0 ? Math.round((delivered / recips) * 100) : 0;
-  document.getElementById('delivery-bar').style.width   = pct + '%';
-  document.getElementById('delivery-pct').textContent   = pct + '% delivered';
-
-  const delivEl = document.getElementById('dash-delivery');
-  if (recips) {
-    delivEl.innerHTML = `
-      <div class="breakdown-row"><span class="breakdown-label" style="color:var(--red)">🔴 Pending</span><span>${pending}</span></div>
-      <div class="breakdown-row"><span class="breakdown-label" style="color:#FFAA32">🟡 Partial</span><span>${partial}</span></div>
-      <div class="breakdown-row"><span class="breakdown-label" style="color:var(--green)">🟢 Delivered</span><span>${delivered}</span></div>
-      <div class="breakdown-row"><span>Total Recipients</span><span>${recips}</span></div>
-    `;
-  } else {
-    delivEl.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>No recipients yet</div>';
-  }
-}
-
-// ─── MASAIL ───────────────────────────────────────────────
-const masailData = [
+const masailTopics = [
   {
-    icon: '⭐',
-    title: 'কার উপর কুরবানি ওয়াজিব',
-    body: `<p>প্রাপ্তবয়স্ক, মুসলিম ও সুস্থ মস্তিষ্কের ব্যক্তির উপর কুরবানি ওয়াজিব।</p>
-           <p>১০ জিলহজ ফজর থেকে ১২ জিলহজ সূর্যাস্ত পর্যন্ত সময়ের মধ্যে নিসাব পরিমাণ সম্পদের মালিক হলে কুরবানি ওয়াজিব।</p>
-           <p>নিসাব = প্রয়োজনের অতিরিক্ত সম্পদ (প্রায় ৫২.৫ তোলা রূপার সমমূল্য)।</p>`
+    title: "কার উপর কুরবানি ওয়াজিব",
+    body: [
+      "প্রাপ্তবয়স্ক, মুসলিম ও সুস্থ মস্তিষ্কের ব্যক্তির উপর কুরবানি ওয়াজিব।",
+      "১০ জিলহজ ফজর থেকে ১২ জিলহজ সূর্যাস্ত পর্যন্ত সময়ের মধ্যে নিসাব পরিমাণ সম্পদের মালিক হলে কুরবানি ওয়াজিব।",
+      "নিসাব = প্রয়োজনের অতিরিক্ত সম্পদ (প্রায় ৫২.৫ তোলা রূপার সমমূল্য)।"
+    ]
   },
   {
-    icon: '🐄',
-    title: 'কোন পশু দিয়ে কুরবানি করা যাবে',
-    body: `<p>গরু, ছাগল, ভেড়া, উট ও মহিষ দ্বারা কুরবানি জায়েজ।</p>
-           <p>বন্য পশু দ্বারা কুরবানি হবে না।</p>`
+    title: "কোন পশু দিয়ে কুরবানি করা যাবে",
+    body: [
+      "গরু, ছাগল, ভেড়া, উট ও মহিষ দ্বারা কুরবানি জায়েজ।",
+      "বন্য পশু দ্বারা কুরবানি হবে না।"
+    ]
   },
   {
-    icon: '📏',
-    title: 'পশুর বয়স শর্ত',
-    body: `<p>উট: ৫ বছর</p>
-           <p>গরু/মহিষ: ২ বছর</p>
-           <p>ছাগল/ভেড়া: ১ বছর</p>
-           <p>ভেড়া হৃষ্টপুষ্ট হলে ৬ মাস হলেও চলবে।</p>`
+    title: "পশুর বয়স শর্ত",
+    body: [
+      "উট: ৫ বছর",
+      "গরু/মহিষ: ২ বছর",
+      "ছাগল/ভেড়া: ১ বছর",
+      "ভেড়া হৃষ্টপুষ্ট হলে ৬ মাস হলেও চলবে"
+    ]
   },
   {
-    icon: '🩺',
-    title: 'দুর্বল পশুর হুকুম',
-    body: `<p>খুব দুর্বল বা হাঁটতে না পারা পশু কুরবানি হবে না।</p>`
+    title: "দুর্বল পশু",
+    body: ["খুব দুর্বল বা হাঁটতে না পারা পশু কুরবানি হবে না"]
   },
   {
-    icon: '🦷',
-    title: 'দাঁতহীন পশু',
-    body: `<p>ঘাস চিবিয়ে খেতে পারলে কুরবানি জায়েজ, না পারলে নয়।</p>`
+    title: "দাঁত নেই এমন পশু",
+    body: ["ঘাস চিবিয়ে খেতে পারলে কুরবানি জায়েজ, না পারলে নয়"]
   },
   {
-    icon: '🐐',
-    title: 'শিং / কান / লেজ সংক্রান্ত মাসআলা',
-    body: `<p>অর্ধেক বা বেশি কাটা হলে কুরবানি হবে না।</p>
-           <p>কম কাটা হলে জায়েজ।</p>`
+    title: "শিং/কান/লেজ",
+    body: ["অর্ধেক বা বেশি কাটা হলে কুরবানি হবে না", "কম হলে জায়েজ"]
   },
   {
-    icon: '👥',
-    title: 'ভাগ নিয়ম',
-    body: `<p>গরু/উটে সর্বোচ্চ ৭ ভাগ।</p>
-           <p>যেকোনো ভাগে অংশ নেওয়া যায়।</p>`
+    title: "ভাগ নিয়ম",
+    body: ["গরু/উটে সর্বোচ্চ ৭ ভাগ", "যেকোনো ভাগে অংশ নেওয়া যায়"]
   },
   {
-    icon: '🕌',
-    title: 'অন্যান্য গুরুত্বপূর্ণ মাসআলা',
-    body: `<p>আকীকা কুরবানিতে একত্রে করা যায়।</p>
-           <p>কুরবানির কোনো অংশ বিক্রি করা যাবে না।</p>
-           <p>মৃত ব্যক্তির পক্ষ থেকে কুরবানি জায়েজ।</p>`
+    title: "অন্যান্য",
+    body: [
+      "আকীকা কুরবানিতে করা যায়",
+      "কুরবানির কোনো অংশ বিক্রি করা যাবে না",
+      "মৃত ব্যক্তির পক্ষ থেকে কুরবানি জায়েজ"
+    ]
   }
 ];
 
-function initMasail() {
-  const el = document.getElementById('masail-list');
-  if (!el) return;
-  el.innerHTML = masailData.map((m, i) => `
-    <div class="masail-card">
-      <div class="masail-header" id="mh-${i}" onclick="toggleMasail(${i})">
-        <span>${m.icon} ${m.title}</span>
-        <span class="masail-chevron">▾</span>
-      </div>
-      <div class="masail-body" id="mb-${i}">${m.body}</div>
-    </div>
-  `).join('');
-}
+let state = loadState();
 
-function toggleMasail(i) {
-  const header = document.getElementById('mh-' + i);
-  const body   = document.getElementById('mb-' + i);
-  const isOpen = body.classList.contains('open');
-  header.classList.toggle('open', !isOpen);
-  body.classList.toggle('open', !isOpen);
-}
-
-// ─── INIT (runs on page load) ─────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  initMasail();
-  renderDashboard();
-  // Expense page only renders when navigated to
-  // but restore tags in case user is on expense tab
-  renderContributorTags();
+const moneyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD"
 });
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!saved) return structuredClone(initialState);
+    return {
+      expense: { ...initialState.expense, ...saved.expense },
+      recipients: Array.isArray(saved.recipients) ? saved.recipients : []
+    };
+  } catch {
+    return structuredClone(initialState);
+  }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function numberValue(id) {
+  const value = Number(document.getElementById(id).value);
+  return Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function totalExpense() {
+  const expense = state.expense;
+  return expense.animalCost + expense.butcherCost + expense.transportCost + expense.otherCost;
+}
+
+function perPersonCost() {
+  return totalExpense() / Math.max(1, state.expense.shareholders);
+}
+
+function formatMoney(value) {
+  return moneyFormatter.format(value || 0);
+}
+
+function deliveryStats() {
+  const total = state.recipients.length;
+  const delivered = state.recipients.filter((recipient) => recipient.delivered).length;
+  const pending = total - delivered;
+  const status = total === 0 || delivered === 0 ? "Pending" : delivered === total ? "Completed" : "Partial";
+  return { total, delivered, pending, status };
+}
+
+function renderBreakdown(containerId) {
+  const expense = state.expense;
+  const rows = [
+    ["Animal type", expense.animalType],
+    ["Animal cost", formatMoney(expense.animalCost)],
+    ["Butcher cost", formatMoney(expense.butcherCost)],
+    ["Transport cost", formatMoney(expense.transportCost)],
+    ["Other expenses", formatMoney(expense.otherCost)],
+    ["Total cost", formatMoney(totalExpense())],
+    ["Per person share", formatMoney(perPersonCost())]
+  ];
+  document.getElementById(containerId).innerHTML = rows
+    .map(([label, value]) => `<div class="breakdown-row"><span>${label}</span><strong>${value}</strong></div>`)
+    .join("");
+}
+
+function renderExpenseForm() {
+  const expense = state.expense;
+  document.getElementById("animalType").value = expense.animalType;
+  document.getElementById("animalCost").value = expense.animalCost || "";
+  document.getElementById("butcherCost").value = expense.butcherCost || "";
+  document.getElementById("transportCost").value = expense.transportCost || "";
+  document.getElementById("otherCost").value = expense.otherCost || "";
+  document.getElementById("shareholders").value = expense.shareholders;
+  document.getElementById("contributors").value = expense.contributors.join("\n");
+}
+
+function renderDashboard() {
+  const stats = deliveryStats();
+  const deliveredPercent = stats.total ? (stats.delivered / stats.total) * 100 : 0;
+  const pendingPercent = stats.total ? (stats.pending / stats.total) * 100 : 0;
+
+  document.getElementById("dashTotalExpense").textContent = formatMoney(totalExpense());
+  document.getElementById("dashPerPerson").textContent = formatMoney(perPersonCost());
+  document.getElementById("dashRecipients").textContent = stats.total;
+  document.getElementById("dashPending").textContent = stats.pending;
+  document.getElementById("deliveredCount").textContent = stats.delivered;
+  document.getElementById("pendingCount").textContent = stats.pending;
+  document.getElementById("deliveredBar").style.width = `${deliveredPercent}%`;
+  document.getElementById("pendingBar").style.width = `${pendingPercent}%`;
+  renderBreakdown("dashboardBreakdown");
+}
+
+function renderExpenseSummary() {
+  document.getElementById("expenseTotal").textContent = formatMoney(totalExpense());
+  document.getElementById("expensePerPerson").textContent = formatMoney(perPersonCost());
+  document.getElementById("expenseShareholders").textContent = state.expense.shareholders;
+  renderBreakdown("expenseBreakdown");
+}
+
+function statusClass(status) {
+  return {
+    Pending: "status-pending",
+    Partial: "status-partial",
+    Completed: "status-completed"
+  }[status];
+}
+
+function renderDistribution() {
+  const stats = deliveryStats();
+  const totalShares = state.recipients.reduce((sum, recipient) => sum + Number(recipient.shares || 0), 0);
+  const overallStatus = document.getElementById("overallStatus");
+
+  overallStatus.textContent = stats.status;
+  overallStatus.className = `status-pill ${statusClass(stats.status)}`;
+  document.getElementById("totalRecipientShares").textContent = totalShares;
+  document.getElementById("distributionDelivered").textContent = stats.delivered;
+  document.getElementById("distributionPending").textContent = stats.pending;
+
+  const recipientList = document.getElementById("recipientList");
+  if (!state.recipients.length) {
+    recipientList.innerHTML = '<div class="empty-state">Add recipients to begin the delivery checklist.</div>';
+    return;
+  }
+
+  recipientList.innerHTML = state.recipients
+    .map((recipient) => {
+      const status = recipient.delivered ? "Completed" : "Pending";
+      return `
+        <article class="recipient-card">
+          <input type="checkbox" data-action="toggle-recipient" data-id="${recipient.id}" ${recipient.delivered ? "checked" : ""} aria-label="Mark ${recipient.name} delivered">
+          <div>
+            <h3>${escapeHtml(recipient.name)}</h3>
+            <p>${recipient.category} | ${recipient.shares} share${recipient.shares > 1 ? "s" : ""}</p>
+          </div>
+          <span class="status-pill ${statusClass(status)}">${status}</span>
+          <button class="delete-btn" data-action="delete-recipient" data-id="${recipient.id}" type="button" aria-label="Delete ${recipient.name}">x</button>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderMasail() {
+  document.getElementById("masailGrid").innerHTML = masailTopics
+    .map((topic, index) => `
+      <article class="masail-card ${index === 0 ? "open" : ""}">
+        <button type="button" aria-expanded="${index === 0 ? "true" : "false"}">
+          <span>${topic.title}</span>
+        </button>
+        <div class="masail-body">
+          ${topic.body.map((line) => `<p>${line}</p>`).join("")}
+        </div>
+      </article>
+    `)
+    .join("");
+}
+
+function renderSummary() {
+  const stats = deliveryStats();
+  const financeRows = [
+    ["Animal", state.expense.animalType],
+    ["Total expense", formatMoney(totalExpense())],
+    ["Shareholders", state.expense.shareholders],
+    ["Per person cost", formatMoney(perPersonCost())]
+  ];
+  const recipientRows = [
+    ["Total recipients", stats.total],
+    ["Delivered", stats.delivered],
+    ["Pending", stats.pending],
+    ["Overall status", stats.status]
+  ];
+
+  document.getElementById("summaryFinance").innerHTML = financeRows
+    .map(([label, value]) => `<div class="summary-line"><span>${label}</span><strong>${value}</strong></div>`)
+    .join("");
+  document.getElementById("summaryRecipients").innerHTML = recipientRows
+    .map(([label, value]) => `<div class="summary-line"><span>${label}</span><strong>${value}</strong></div>`)
+    .join("");
+  document.getElementById("summaryContributors").innerHTML = state.expense.contributors.length
+    ? state.expense.contributors.map((name) => `<span class="tag">${escapeHtml(name)}</span>`).join("")
+    : '<div class="empty-state">No contributors saved yet.</div>';
+}
+
+function renderAll() {
+  renderExpenseForm();
+  renderDashboard();
+  renderExpenseSummary();
+  renderDistribution();
+  renderSummary();
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function setView(viewId) {
+  document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === viewId));
+  document.querySelectorAll(".nav-link").forEach((button) => button.classList.toggle("active", button.dataset.view === viewId));
+  history.replaceState(null, "", `#${viewId}`);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.querySelectorAll(".nav-link").forEach((button) => {
+  button.addEventListener("click", () => setView(button.dataset.view));
+});
+
+document.querySelectorAll("[data-jump]").forEach((button) => {
+  button.addEventListener("click", () => setView(button.dataset.jump));
+});
+
+document.getElementById("expenseForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  state.expense = {
+    animalType: document.getElementById("animalType").value,
+    animalCost: numberValue("animalCost"),
+    butcherCost: numberValue("butcherCost"),
+    transportCost: numberValue("transportCost"),
+    otherCost: numberValue("otherCost"),
+    shareholders: clamp(Number(document.getElementById("shareholders").value) || 1, 1, 7),
+    contributors: document.getElementById("contributors").value
+      .split(/\r?\n|,/)
+      .map((name) => name.trim())
+      .filter(Boolean)
+  };
+  saveState();
+  renderAll();
+});
+
+document.getElementById("recipientForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const name = document.getElementById("recipientName").value.trim();
+  if (!name) return;
+
+  state.recipients.unshift({
+    id: crypto.randomUUID(),
+    name,
+    category: document.getElementById("recipientCategory").value,
+    shares: clamp(Number(document.getElementById("recipientShares").value) || 1, 1, 7),
+    delivered: false
+  });
+  event.target.reset();
+  document.getElementById("recipientShares").value = 1;
+  saveState();
+  renderAll();
+});
+
+document.getElementById("recipientList").addEventListener("click", (event) => {
+  const target = event.target;
+  const action = target.dataset.action;
+  const id = target.dataset.id;
+  if (!action || !id) return;
+
+  if (action === "toggle-recipient") {
+    state.recipients = state.recipients.map((recipient) =>
+      recipient.id === id ? { ...recipient, delivered: target.checked } : recipient
+    );
+  }
+
+  if (action === "delete-recipient") {
+    state.recipients = state.recipients.filter((recipient) => recipient.id !== id);
+  }
+
+  saveState();
+  renderAll();
+});
+
+document.getElementById("clearDeliveredBtn").addEventListener("click", () => {
+  state.recipients = state.recipients.filter((recipient) => !recipient.delivered);
+  saveState();
+  renderAll();
+});
+
+document.getElementById("masailGrid").addEventListener("click", (event) => {
+  const button = event.target.closest("button");
+  if (!button) return;
+  const card = button.closest(".masail-card");
+  const isOpen = card.classList.toggle("open");
+  button.setAttribute("aria-expanded", String(isOpen));
+});
+
+document.getElementById("exportDataBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "qurbani-for-allah-backup.json";
+  link.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("importDataInput").addEventListener("change", async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  try {
+    const imported = JSON.parse(await file.text());
+    state = {
+      expense: { ...initialState.expense, ...imported.expense },
+      recipients: Array.isArray(imported.recipients) ? imported.recipients : []
+    };
+    saveState();
+    renderAll();
+  } catch {
+    alert("The selected backup file could not be imported.");
+  } finally {
+    event.target.value = "";
+  }
+});
+
+renderMasail();
+renderAll();
+
+const initialHash = location.hash.replace("#", "");
+if (["dashboard", "expense", "distribution", "masail", "summary"].includes(initialHash)) {
+  setView(initialHash);
+}

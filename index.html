@@ -3,195 +3,289 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Qurbani for Allah</title>
+  <title>Qurbani for Allah — Tahsin Jawad</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Serif+Bengali:wght@400;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+  <!-- Loader -->
   <div class="loader" id="loader">
-    <div class="loader-mark">Q</div>
+    <div class="loader-inner">
+      <div class="loader-ring"></div>
+      <div class="loader-crescent">☾</div>
+    </div>
   </div>
 
-  <div class="ambient">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
+  <!-- Background canvas -->
+  <canvas class="bg-canvas" id="bgCanvas"></canvas>
 
-  <header class="topbar">
+  <!-- Geometric ornaments -->
+  <div class="ornament ornament-tl"></div>
+  <div class="ornament ornament-br"></div>
+
+  <!-- Header -->
+  <header class="topbar" id="topbar">
     <a class="brand" href="#home" aria-label="Qurbani for Allah home">
-      <span class="brand-icon">☾</span>
-      <span>Qurbani for Allah</span>
+      <div class="brand-mark">☾</div>
+      <div class="brand-text">
+        <span class="brand-title">Qurbani for Allah</span>
+        <span class="brand-sub">by Tahsin Jawad</span>
+      </div>
     </a>
-    <nav class="nav" aria-label="Main navigation">
-      <a href="#dashboard">Dashboard</a>
-      <a href="#expenses">Expenses</a>
-      <a href="#distribution">Distribution</a>
-      <a href="#masail">Masail</a>
-      <a href="#summary">Summary</a>
+    <nav class="nav" aria-label="Main navigation" id="mainNav">
+      <a href="#home" class="nav-link" data-section="home">Home</a>
+      <a href="#dashboard" class="nav-link" data-section="dashboard">Dashboard</a>
+      <a href="#expenses" class="nav-link" data-section="expenses">Expenses</a>
+      <a href="#distribution" class="nav-link" data-section="distribution">Distribution</a>
+      <a href="#masail" class="nav-link" data-section="masail">Masail</a>
+      <a href="#summary" class="nav-link" data-section="summary">Summary</a>
     </nav>
     <div class="header-actions">
-      <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle theme">◐</button>
-      <button class="menu-btn" id="menuToggle" type="button" aria-label="Open menu">☰</button>
+      <button class="hdr-btn" id="themeToggle" type="button" aria-label="Toggle theme">
+        <span id="themeIcon">◐</span>
+      </button>
+      <button class="hdr-btn menu-btn" id="menuToggle" type="button" aria-label="Open menu">
+        <span class="burger"><i></i><i></i><i></i></span>
+      </button>
     </div>
   </header>
 
-  <main>
-    <section class="hero section" id="home">
-      <div class="hero-grid">
-        <div class="hero-copy reveal">
-          <div class="eyebrow">Spiritual care, modern clarity</div>
-          <h1>Qurbani for Allah</h1>
-          <p>Plan expenses, manage shareholders, track meat delivery, and read essential Masail in one calm premium workspace.</p>
-          <div class="hero-actions">
-            <a class="btn primary" href="#dashboard">Open Dashboard</a>
-            <a class="btn ghost" href="#masail">Read Masail</a>
+  <main id="mainContent">
+
+    <!-- Hero -->
+    <section class="section hero-section" id="home">
+      <div class="hero-layout">
+        <div class="hero-copy">
+          <p class="eyebrow reveal">☾ &nbsp;Spiritual care · Modern clarity</p>
+          <h1 class="hero-title reveal">
+            <em>Qurbani</em><br>for Allah
+          </h1>
+          <p class="hero-desc reveal">Plan every sacrifice with sincerity. Track expenses, manage shareholders, coordinate meat delivery, and explore essential Masail — all in one serene workspace.</p>
+          <div class="hero-ctas reveal">
+            <a class="cta-primary" href="#dashboard">
+              <span>Open Dashboard</span>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <a class="cta-ghost" href="#masail">Read Masail</a>
           </div>
         </div>
-        <div class="hero-panel glass reveal">
-          <div class="crescent">☾</div>
-          <div class="countdown">
-            <span>Estimated Eid Countdown</span>
-            <strong id="eidCountdown">Calculating...</strong>
+        <div class="hero-card reveal">
+          <div class="hero-card-glow"></div>
+          <div class="hero-card-pattern"></div>
+          <div class="hc-moon">☾</div>
+          <div class="hc-bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+          <div class="hc-countdown">
+            <span class="hc-label">Estimated Eid Countdown</span>
+            <strong class="hc-timer" id="eidCountdown">Calculating…</strong>
           </div>
-          <div class="hero-metrics">
-            <div>
+          <div class="hc-metrics">
+            <div class="hc-metric">
               <span>Total Cost</span>
               <strong data-dashboard="total">$0</strong>
             </div>
-            <div>
+            <div class="hc-metric">
               <span>Shareholders</span>
               <strong data-dashboard="shareholders">0</strong>
             </div>
           </div>
-          <small class="signature">Tahsin Jawad</small>
         </div>
+      </div>
+      <div class="scroll-hint reveal">
+        <div class="scroll-dot"></div>
+        <span>Scroll to explore</span>
       </div>
     </section>
 
-    <section class="section dashboard" id="dashboard">
-      <div class="section-heading reveal">
-        <span class="eyebrow">Premium Dashboard</span>
-        <h2>Everything important, beautifully visible.</h2>
+    <!-- Dashboard -->
+    <section class="section" id="dashboard">
+      <div class="section-intro reveal">
+        <p class="eyebrow">☾ &nbsp;Overview</p>
+        <h2>Everything important,<br><em>beautifully visible.</em></h2>
       </div>
 
-      <div class="greeting-card glass reveal">
-        <div>
-          <span class="moon">☾</span>
+      <div class="greeting-card reveal" id="greetingCard">
+        <div class="gc-icon">☾</div>
+        <div class="gc-body">
           <h3>Eid Mubarak from Jawad</h3>
-          <p>May every sacrifice be accepted with sincerity, gratitude, and mercy.</p>
+          <p>May every sacrifice be accepted with sincerity, gratitude, and infinite mercy. Allahu Akbar.</p>
         </div>
-        <button class="icon-btn" id="dismissGreeting" type="button" aria-label="Dismiss greeting">×</button>
+        <button class="gc-close" id="dismissGreeting" type="button" aria-label="Dismiss greeting">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
       </div>
 
       <div class="stats-grid">
-        <article class="stat-card glass reveal">
-          <span>Total Expenses</span>
-          <strong data-dashboard="total">$0</strong>
-          <small>Live from expense tracker</small>
+        <article class="stat-card glass reveal" style="--delay:0s">
+          <div class="stat-icon">﷼</div>
+          <div class="stat-info">
+            <span>Total Expenses</span>
+            <strong data-dashboard="total">$0</strong>
+          </div>
+          <div class="stat-bar" data-bar="total"></div>
         </article>
-        <article class="stat-card glass reveal">
-          <span>Per Share Cost</span>
-          <strong data-dashboard="perShare">$0</strong>
-          <small>Based on active shareholders</small>
+        <article class="stat-card glass reveal" style="--delay:.08s">
+          <div class="stat-icon">÷</div>
+          <div class="stat-info">
+            <span>Per Share Cost</span>
+            <strong data-dashboard="perShare">$0</strong>
+          </div>
+          <div class="stat-bar" data-bar="perShare"></div>
         </article>
-        <article class="stat-card glass reveal">
-          <span>Pending Recipients</span>
-          <strong data-dashboard="pending">0</strong>
-          <small>No family should be forgotten</small>
+        <article class="stat-card glass reveal" style="--delay:.16s">
+          <div class="stat-icon">◎</div>
+          <div class="stat-info">
+            <span>Pending Recipients</span>
+            <strong data-dashboard="pending">0</strong>
+          </div>
+          <div class="stat-bar" data-bar="pending"></div>
         </article>
-        <article class="stat-card glass reveal">
-          <span>Completed Deliveries</span>
-          <strong data-dashboard="completed">0</strong>
-          <small>Tracked with care</small>
+        <article class="stat-card glass reveal" style="--delay:.24s">
+          <div class="stat-icon">✓</div>
+          <div class="stat-info">
+            <span>Completed</span>
+            <strong data-dashboard="completed">0</strong>
+          </div>
+          <div class="stat-bar" data-bar="completed"></div>
         </article>
       </div>
 
-      <div class="dashboard-grid">
-        <article class="progress-widget glass reveal">
-          <div class="ring" id="progressRing" style="--progress: 0">
-            <span data-dashboard="progress">0%</span>
+      <div class="dash-grid">
+        <article class="progress-card glass reveal">
+          <div class="progress-ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 120 120" id="progressRingSvg">
+              <circle class="ring-track" cx="60" cy="60" r="50"/>
+              <circle class="ring-fill" cx="60" cy="60" r="50" id="ringFill"/>
+            </svg>
+            <span class="ring-label" data-dashboard="progress">0%</span>
           </div>
-          <div>
+          <div class="progress-info">
             <h3>Distribution Progress</h3>
-            <p>Completion updates instantly as delivery status changes.</p>
+            <p>Completion updates instantly as delivery status changes across all recipients.</p>
+            <div class="progress-legend">
+              <span><i class="dot dot-done"></i>Completed</span>
+              <span><i class="dot dot-part"></i>Partial</span>
+              <span><i class="dot dot-pend"></i>Pending</span>
+            </div>
           </div>
         </article>
-        <article class="chart-widget glass reveal">
-          <div class="widget-title">
+
+        <article class="chart-card glass reveal">
+          <div class="card-header">
             <h3>Expense Breakdown</h3>
-            <span>Tahsin Jawad</span>
+            <span class="card-sig">Tahsin Jawad</span>
           </div>
           <div class="bar-chart" id="expenseChart"></div>
         </article>
-        <article class="activity-widget glass reveal">
-          <div class="widget-title">
+
+        <article class="activity-card glass reveal">
+          <div class="card-header">
             <h3>Recent Activities</h3>
+            <span class="activity-count" id="activityCount">0</span>
           </div>
-          <ul id="activityList"></ul>
+          <ul class="activity-list" id="activityList"></ul>
         </article>
       </div>
     </section>
 
-    <section class="section expenses" id="expenses">
-      <div class="section-heading reveal">
-        <span class="eyebrow">Smart Expense Tracker</span>
-        <h2>Clear cost sharing without spreadsheet stress.</h2>
+    <!-- Expenses -->
+    <section class="section" id="expenses">
+      <div class="section-intro reveal">
+        <p class="eyebrow">☾ &nbsp;Smart Tracker</p>
+        <h2>Clear cost sharing,<br><em>without the stress.</em></h2>
       </div>
       <div class="workspace-grid">
-        <form class="form-card glass reveal" id="expenseForm">
-          <label>Animal Purchase Cost
-            <input type="number" min="0" step="1" id="animalCost" placeholder="0">
+        <form class="glass form-card reveal" id="expenseForm" novalidate>
+          <div class="form-section-label">Cost Breakdown</div>
+          <div class="field-grid">
+            <label class="field">
+              <span>Animal Purchase</span>
+              <div class="input-wrap">
+                <span class="input-prefix">$</span>
+                <input type="number" min="0" step="1" id="animalCost" placeholder="0">
+              </div>
+            </label>
+            <label class="field">
+              <span>Butcher Fee</span>
+              <div class="input-wrap">
+                <span class="input-prefix">$</span>
+                <input type="number" min="0" step="1" id="butcherCost" placeholder="0">
+              </div>
+            </label>
+            <label class="field">
+              <span>Transport</span>
+              <div class="input-wrap">
+                <span class="input-prefix">$</span>
+                <input type="number" min="0" step="1" id="transportCost" placeholder="0">
+              </div>
+            </label>
+            <label class="field">
+              <span>Other Costs</span>
+              <div class="input-wrap">
+                <span class="input-prefix">$</span>
+                <input type="number" min="0" step="1" id="otherCost" placeholder="0">
+              </div>
+            </label>
+          </div>
+          <div class="form-divider"></div>
+          <div class="form-section-label">Shareholders</div>
+          <label class="field">
+            <span>Total Shareholders</span>
+            <div class="input-wrap">
+              <span class="input-prefix">#</span>
+              <input type="number" min="1" step="1" id="shareholderCount" placeholder="1">
+            </div>
           </label>
-          <label>Butcher Cost
-            <input type="number" min="0" step="1" id="butcherCost" placeholder="0">
-          </label>
-          <label>Transport Cost
-            <input type="number" min="0" step="1" id="transportCost" placeholder="0">
-          </label>
-          <label>Other Costs
-            <input type="number" min="0" step="1" id="otherCost" placeholder="0">
-          </label>
-          <label>Shareholder Count
-            <input type="number" min="1" step="1" id="shareholderCount" placeholder="1">
-          </label>
-          <label>Contributor Names
-            <textarea id="shareholderNames" rows="4" placeholder="One name per line"></textarea>
+          <label class="field full">
+            <span>Contributor Names <em style="font-weight:400;font-style:normal;opacity:.6">(one per line)</em></span>
+            <textarea id="shareholderNames" rows="4" placeholder="Ahmad&#10;Fatima&#10;Ibrahim"></textarea>
           </label>
           <div class="form-actions">
-            <button class="btn primary" type="submit">Save Expenses</button>
-            <button class="btn ghost" type="button" id="resetExpenses">Reset</button>
+            <button class="cta-primary" type="submit">
+              <span>Save Expenses</span>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="cta-ghost" type="button" id="resetExpenses">Reset</button>
           </div>
         </form>
-        <div class="expense-insight glass reveal">
-          <span class="signature">Tahsin Jawad</span>
-          <h3>Live Calculation</h3>
-          <div class="calc-row">
+
+        <div class="glass insight-card reveal">
+          <div class="insight-header">
+            <h3>Live Calculation</h3>
+            <span class="card-sig">Tahsin Jawad</span>
+          </div>
+          <div class="insight-row">
             <span>Total Cost</span>
             <strong data-dashboard="total">$0</strong>
           </div>
-          <div class="calc-row">
+          <div class="insight-row">
             <span>Per Person Share</span>
             <strong data-dashboard="perShare">$0</strong>
           </div>
+          <div class="insight-divider"></div>
+          <p class="insight-label">Contributors</p>
           <div class="shareholders-list" id="shareholdersList"></div>
         </div>
       </div>
     </section>
 
-    <section class="section distribution" id="distribution">
-      <div class="section-heading reveal">
-        <span class="eyebrow">Smart Meat Distribution</span>
-        <h2>Assign, search, and complete every delivery.</h2>
+    <!-- Distribution -->
+    <section class="section" id="distribution">
+      <div class="section-intro reveal">
+        <p class="eyebrow">☾ &nbsp;Meat Distribution</p>
+        <h2>Assign, search, and<br><em>complete every delivery.</em></h2>
       </div>
       <div class="workspace-grid">
-        <form class="form-card glass reveal" id="recipientForm">
-          <label>Recipient Name
-            <input type="text" id="recipientName" placeholder="Name">
+        <form class="glass form-card reveal" id="recipientForm" novalidate>
+          <div class="form-section-label">Add Recipient</div>
+          <label class="field full">
+            <span>Recipient Name</span>
+            <input type="text" id="recipientName" placeholder="Full name or household">
           </label>
-          <label>Group
+          <label class="field">
+            <span>Group</span>
             <select id="recipientGroup">
               <option>Family</option>
               <option>Relatives</option>
@@ -199,22 +293,33 @@
               <option>Needy People</option>
             </select>
           </label>
-          <label>Assigned Share
-            <input type="number" min="0" step="0.25" id="recipientShare" placeholder="1">
+          <label class="field">
+            <span>Assigned Share</span>
+            <div class="input-wrap">
+              <input type="number" min="0" step="0.25" id="recipientShare" placeholder="1">
+            </div>
           </label>
-          <label>Status
+          <label class="field full">
+            <span>Delivery Status</span>
             <select id="recipientStatus">
               <option>Pending</option>
               <option>Partially Delivered</option>
               <option>Completed</option>
             </select>
           </label>
-          <button class="btn primary" type="submit">Add Recipient</button>
+          <button class="cta-primary" type="submit">
+            <span>Add Recipient</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
         </form>
-        <div class="distribution-board glass reveal">
+
+        <div class="glass board-card reveal">
           <div class="board-tools">
-            <input type="search" id="recipientSearch" placeholder="Search recipients">
-            <select id="statusFilter" aria-label="Filter delivery status">
+            <div class="search-wrap">
+              <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <input type="search" id="recipientSearch" placeholder="Search recipients…">
+            </div>
+            <select id="statusFilter" class="filter-select" aria-label="Filter delivery status">
               <option value="All">All Status</option>
               <option value="Pending">Pending</option>
               <option value="Partially Delivered">Partially Delivered</option>
@@ -226,40 +331,68 @@
       </div>
     </section>
 
-    <section class="section masail" id="masail">
-      <div class="section-heading bangla reveal">
-        <span class="eyebrow">Masail Guidance</span>
-        <h2>কুরবানির প্রয়োজনীয় মাসায়েল</h2>
+    <!-- Masail -->
+    <section class="section masail-section" id="masail">
+      <div class="section-intro reveal bangla-head">
+        <p class="eyebrow">☾ &nbsp;Islamic Guidance</p>
+        <h2 class="bangla">কুরবানির প্রয়োজনীয়<br><em>মাসায়েল</em></h2>
       </div>
-      <div class="accordion bangla reveal" id="masailAccordion"></div>
+      <div class="masail-grid" id="masailAccordion"></div>
     </section>
 
-    <section class="section summary" id="summary">
-      <div class="section-heading reveal">
-        <span class="eyebrow">Final Summary</span>
-        <h2>Backup, restore, and close the plan with confidence.</h2>
+    <!-- Summary -->
+    <section class="section" id="summary">
+      <div class="section-intro reveal">
+        <p class="eyebrow">☾ &nbsp;Final Summary</p>
+        <h2>Backup, restore, and<br><em>close with confidence.</em></h2>
       </div>
       <div class="summary-grid">
-        <article class="summary-card glass reveal">
+        <article class="glass summary-card reveal">
+          <div class="sum-icon">📋</div>
           <h3>Qurbani Snapshot</h3>
-          <p><strong data-dashboard="total">$0</strong> total expense across <strong data-dashboard="shareholders">0</strong> shareholders.</p>
-          <p><strong data-dashboard="progress">0%</strong> distribution completed.</p>
+          <div class="sum-row">
+            <span>Total Expense</span>
+            <strong data-dashboard="total">$0</strong>
+          </div>
+          <div class="sum-row">
+            <span>Shareholders</span>
+            <strong data-dashboard="shareholders">0</strong>
+          </div>
+          <div class="sum-row">
+            <span>Distribution</span>
+            <strong data-dashboard="progress">0%</strong>
+          </div>
         </article>
-        <article class="summary-card glass reveal">
+        <article class="glass summary-card reveal">
+          <div class="sum-icon">💾</div>
           <h3>Backup Center</h3>
+          <p>Export your full plan as JSON, or restore a previous backup at any time.</p>
           <div class="backup-actions">
-            <button class="btn primary" id="exportData" type="button">Export JSON</button>
-            <label class="btn ghost file-btn">Import JSON
+            <button class="cta-primary" id="exportData" type="button">
+              <span>Export JSON</span>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M3 6l4 4 4-4M1 11h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <label class="cta-ghost file-btn">
+              <span>Import JSON</span>
               <input type="file" id="importData" accept="application/json">
             </label>
           </div>
         </article>
       </div>
     </section>
+
   </main>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <footer class="footer-signature">Tahsin Jawad</footer>
+  <div class="toast-container">
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span class="footer-brand">☾ Qurbani for Allah</span>
+      <span class="footer-sig">Crafted with love by <em>Tahsin Jawad</em></span>
+    </div>
+  </footer>
 
   <script src="script.js"></script>
 </body>

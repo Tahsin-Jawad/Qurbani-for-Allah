@@ -1,667 +1,735 @@
-/* ============================================================
+/* =====================================================
    QURBANI FOR ALLAH — script.js
-   Tahsin Jawad
-   ============================================================ */
+   Author: Tahsin Jawad
+   ===================================================== */
 
-const STORE_KEY = "qurbaniForAllahV2";
+'use strict';
 
-const defaultState = {
-  theme: "dark",
-  expenses: {
-    animal: 0,
-    butcher: 0,
-    transport: 0,
-    other: 0,
-    shareholderCount: 1,
-    names: []
+// ===== APP STATE =====
+let appState = {
+  expense: {
+    animal: 0, butcher: 0, transport: 0, extra: 0,
+    shares: 1, contributors: []
   },
-  recipients: [
-    { id: uid(), name: "Mother's home", group: "Family", share: 1, status: "Completed" },
-    { id: uid(), name: "Neighbour block A", group: "Neighbours", share: 0.75, status: "Partially Delivered" },
-    { id: uid(), name: "Local needy families", group: "Needy People", share: 2, status: "Pending" }
-  ],
-  activities: ["Dashboard prepared", "Default recipient plan added"],
-  greetingHidden: false
+  recipients: [],
+  activities: []
 };
 
-const masail = [
-  {
-    icon: "⭐",
-    title: "কার উপর কুরবানি ওয়াজিব",
-    lines: [
-      "প্রাপ্তবয়স্ক, মুসলিম ও সুস্থ মস্তিষ্কের ব্যক্তির উপর কুরবানি ওয়াজিব",
-      "১০ জিলহজ ফজর থেকে ১২ জিলহজ সূর্যাস্ত পর্যন্ত সময়ের মধ্যে নিসাব পরিমাণ সম্পদের মালিক হলে কুরবানি ওয়াজিব",
-      "নিসাব = প্রয়োজনের অতিরিক্ত সম্পদ (প্রায় ৫২.৫ তোলা রূপার সমমূল্য)"
-    ]
-  },
-  {
-    icon: "🐄",
-    title: "কোন পশু দিয়ে কুরবানি করা যাবে",
-    lines: [
-      "গরু, ছাগল, ভেড়া, উট ও মহিষ দ্বারা কুরবানি জায়েজ",
-      "হরিণ বা বন্য পশু দ্বারা কুরবানি হবে না"
-    ]
-  },
-  {
-    icon: "📏",
-    title: "পশুর বয়স শর্ত",
-    lines: [
-      "উট: কমপক্ষে ৫ বছর",
-      "গরু/মহিষ: কমপক্ষে ২ বছর",
-      "ছাগল/ভেড়া: কমপক্ষে ১ বছর",
-      "ভেড়া হৃষ্টপুষ্ট হলে ৬ মাস হলেও চলবে"
-    ]
-  },
-  {
-    icon: "🩺",
-    title: "দুর্বল বা অসুস্থ পশু",
-    lines: [
-      "খুব দুর্বল বা হাঁটতে না পারা পশু দ্বারা কুরবানি হবে না"
-    ]
-  },
-  {
-    icon: "🦷",
-    title: "দাঁত নেই এমন পশু",
-    lines: [
-      "ঘাস চিবিয়ে খেতে পারলে কুরবানি জায়েজ",
-      "না পারলে কুরবানি হবে না"
-    ]
-  },
-  {
-    icon: "🐐",
-    title: "শিং, কান বা লেজ কাটা পশু",
-    lines: [
-      "অর্ধেক বা তার বেশি কাটা হলে কুরবানি হবে না",
-      "অর্ধেকের কম হলে জায়েজ",
-      "জন্মগতভাবে ছোট কান হলে সমস্যা নেই"
-    ]
-  },
-  {
-    icon: "👥",
-    title: "ভাগ (Share) নিয়ম",
-    lines: [
-      "গরু/উট/মহিষে সর্বোচ্চ ৭ জন শরীক হতে পারে",
-      "১ থেকে ৭ পর্যন্ত যেকোনো ভাগ করা যায়",
-      "সমান ভাগ হওয়া জরুরি নয়"
-    ]
-  },
-  {
-    icon: "🧑‍🤝‍🧑",
-    title: "আকীকার অংশ কুরবানিতে",
-    lines: [
-      "কুরবানির পশুতে আকীকা করা জায়েজ",
-      "একই পশুতে কুরবানি ও আকীকা সহীহ"
-    ]
-  },
-  {
-    icon: "💰",
-    title: "হারাম উপার্জন সংক্রান্ত",
-    lines: [
-      "শরীকদের অধিকাংশ টাকা হারাম হলে কুরবানি সহীহ হবে না"
-    ]
-  },
-  {
-    icon: "🐄",
-    title: "একা পশু কিনে পরে শরীক করা",
-    lines: [
-      "ধনী ব্যক্তি চাইলে পরে অন্যকে শরীক করতে পারে",
-      "তবে একা কুরবানি করা উত্তম"
-    ]
-  },
-  {
-    icon: "⚰️",
-    title: "মৃত ব্যক্তির পক্ষ থেকে কুরবানি",
-    lines: [
-      "জায়েজ",
-      "ওসিয়ত না থাকলে নফল",
-      "ওসিয়ত থাকলে গোশত সদকা করতে হবে"
-    ]
-  },
-  {
-    icon: "🕌",
-    title: "কুরবানির অংশ বিক্রি করা",
-    lines: [
-      "কুরবানির কোনো অংশ বিক্রি করা জায়েজ নয়",
-      "বিক্রি করলে মূল্য সদকা করতে হবে"
-    ]
-  },
-  {
-    icon: "👨‍🍳",
-    title: "জবাইকারীর পারিশ্রমিক",
-    lines: [
-      "পারিশ্রমিক দেওয়া জায়েজ",
-      "কিন্তু গোশত পারিশ্রমিক হিসেবে দেওয়া যাবে না"
-    ]
-  },
-  {
-    icon: "🌍",
-    title: "বিদেশে অবস্থান করলে কুরবানি",
-    lines: [
-      "যেকোনো দেশে কুরবানি করা জায়েজ",
-      "পশু যেখানে আছে সেখানে ঈদের নামাজ হয়ে গেলে কুরবানি করা যাবে"
-    ]
-  },
-  {
-    icon: "🧠",
-    title: "সাধারণ ভুল ধারণা",
-    lines: [
-      "কম বয়সের পশু কুরবানি করা",
-      "অসুস্থ পশু কেনা",
-      "কুরবানির অংশ বিক্রি করা",
-      "যেকোনো পশু দিয়ে কুরবানি হবে মনে করা"
-    ]
-  }
-];
+// ===== LOCALSTORAGE =====
+const STORAGE_KEY = 'qurbani_for_allah_v1';
 
-const fmtCurrency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0
-});
-
-/* ── State ─────────────────────────────────── */
-let state = loadState();
-
-function uid() {
-  return typeof crypto !== "undefined" && crypto.randomUUID
-    ? crypto.randomUUID()
-    : Math.random().toString(36).slice(2);
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
 }
 
 function loadState() {
   try {
-    const saved = localStorage.getItem(STORE_KEY);
-    if (saved) return { ...structuredClone(defaultState), ...JSON.parse(saved) };
-  } catch {}
-  return structuredClone(defaultState);
-}
-
-function saveState(activity) {
-  if (activity) {
-    state.activities = [activity, ...state.activities].slice(0, 8);
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      appState = { ...appState, ...parsed };
+    }
+  } catch (e) {
+    console.warn('State load failed:', e);
   }
-  try {
-    localStorage.setItem(STORE_KEY, JSON.stringify(state));
-  } catch {}
-  renderAll();
 }
 
-/* ── Init ──────────────────────────────────── */
-document.addEventListener("DOMContentLoaded", () => {
-  initCanvas();
-  renderMasail();
-  hydrateForm();
-  bindEvents();
-  renderAll();
-  setupReveal();
-  setupActiveNav();
-  updateCountdown();
-  setInterval(updateCountdown, 30_000);
-
-  // Add SVG gradient for ring
-  const svgNS = "http://www.w3.org/2000/svg";
-  const defs = document.createElementNS(svgNS, "defs");
-  const grad = document.createElementNS(svgNS, "linearGradient");
-  grad.setAttribute("id", "ringGrad");
-  grad.setAttribute("x1", "0%"); grad.setAttribute("y1", "0%");
-  grad.setAttribute("x2", "100%"); grad.setAttribute("y2", "0%");
-  const s1 = document.createElementNS(svgNS, "stop");
-  s1.setAttribute("offset", "0%"); s1.setAttribute("stop-color", "#26ad77");
-  const s2 = document.createElementNS(svgNS, "stop");
-  s2.setAttribute("offset", "100%"); s2.setAttribute("stop-color", "#c9a84c");
-  grad.appendChild(s1); grad.appendChild(s2);
-  defs.appendChild(grad);
-  const ringSvg = document.getElementById("progressRingSvg");
-  if (ringSvg) ringSvg.insertBefore(defs, ringSvg.firstChild);
-
-  setTimeout(() => {
-    document.getElementById("loader").classList.add("hidden");
-  }, 750);
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  initLoadingScreen();
+  initNavigation();
+  initTheme();
+  initCountdown();
+  initExpenseForm();
+  initDistributionForm();
+  initMasail();
+  refreshAllUI();
 });
 
-/* ── Canvas background ─────────────────────── */
-function initCanvas() {
-  const canvas = document.getElementById("bgCanvas");
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  let W, H, particles = [];
+// ===== LOADING SCREEN =====
+function initLoadingScreen() {
+  const screen = document.getElementById('loadingScreen');
+  setTimeout(() => {
+    screen.classList.add('gone');
+    document.body.style.overflow = '';
+  }, 2800);
+  document.body.style.overflow = 'hidden';
+}
 
-  function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+// ===== NAVIGATION =====
+let currentSection = 'dashboard';
+
+function initNavigation() {
+  // Desktop nav links
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const sec = link.dataset.section;
+      navigateTo(sec);
+      // Close mobile nav if open
+      document.getElementById('mobileNav').classList.remove('open');
+    });
+  });
+
+  // Mobile nav links
+  document.querySelectorAll('.mobile-nav-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      navigateTo(link.dataset.section);
+    });
+  });
+
+  // Hamburger
+  document.getElementById('navHamburger').addEventListener('click', () => {
+    const mn = document.getElementById('mobileNav');
+    mn.style.display = mn.style.display === 'flex' ? 'none' : 'flex';
+  });
+
+  // Navbar scroll effect
+  window.addEventListener('scroll', () => {
+    const nb = document.getElementById('navbar');
+    nb.style.background = window.scrollY > 60
+      ? 'rgba(8,15,11,0.95)'
+      : 'rgba(8,15,11,0.75)';
+  });
+}
+
+function navigateTo(section) {
+  currentSection = section;
+
+  // Hide hero
+  const hero = document.getElementById('heroSection');
+  if (section !== 'hero') {
+    hero.style.display = 'none';
   }
 
-  function createParticles() {
-    particles = Array.from({ length: 38 }, () => ({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      r: Math.random() * 1.5 + 0.4,
-      vx: (Math.random() - .5) * .18,
-      vy: (Math.random() - .5) * .14,
-      alpha: Math.random() * .35 + .08
-    }));
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    const isDark = !document.body.classList.contains("light");
-
-    // Radial glow top-left (gold)
-    const g1 = ctx.createRadialGradient(W * .12, H * .06, 0, W * .12, H * .06, W * .38);
-    g1.addColorStop(0, isDark ? "rgba(201,168,76,.12)" : "rgba(201,168,76,.07)");
-    g1.addColorStop(1, "transparent");
-    ctx.fillStyle = g1;
-    ctx.fillRect(0, 0, W, H);
-
-    // Radial glow bottom-right (emerald)
-    const g2 = ctx.createRadialGradient(W * .88, H * .82, 0, W * .88, H * .82, W * .35);
-    g2.addColorStop(0, isDark ? "rgba(26,122,86,.1)" : "rgba(26,122,86,.06)");
-    g2.addColorStop(1, "transparent");
-    ctx.fillStyle = g2;
-    ctx.fillRect(0, 0, W, H);
-
-    // Particles
-    particles.forEach(p => {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = isDark
-        ? `rgba(201,168,76,${p.alpha})`
-        : `rgba(26,122,86,${p.alpha * .6})`;
-      ctx.fill();
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-    });
-
-    requestAnimationFrame(draw);
-  }
-
-  resize();
-  createParticles();
-  draw();
-  window.addEventListener("resize", () => { resize(); createParticles(); });
-}
-
-/* ── Events ────────────────────────────────── */
-function bindEvents() {
-  // Theme
-  document.getElementById("themeToggle").addEventListener("click", () => {
-    state.theme = state.theme === "dark" ? "light" : "dark";
-    saveState("Theme updated");
+  // Toggle sections
+  document.querySelectorAll('.app-section').forEach(s => {
+    s.classList.toggle('hidden', s.id !== section);
   });
 
-  // Menu
-  document.getElementById("menuToggle").addEventListener("click", () => {
-    document.body.classList.toggle("menu-open");
-  });
-  document.querySelectorAll(".nav-link").forEach(l =>
-    l.addEventListener("click", () => document.body.classList.remove("menu-open"))
-  );
-
-  // Greeting
-  document.getElementById("dismissGreeting").addEventListener("click", () => {
-    state.greetingHidden = true;
-    const card = document.getElementById("greetingCard");
-    card.style.opacity = "0";
-    card.style.transform = "translateY(-8px)";
-    card.style.transition = ".3s ease";
-    setTimeout(() => card.style.display = "none", 300);
-    saveState("Greeting dismissed");
+  // Update nav active state
+  document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(l => {
+    l.classList.toggle('active', l.dataset.section === section);
   });
 
-  // Expenses form
-  document.getElementById("expenseForm").addEventListener("submit", e => {
-    e.preventDefault();
-    state.expenses = {
-      animal:           readNum("animalCost"),
-      butcher:          readNum("butcherCost"),
-      transport:        readNum("transportCost"),
-      other:            readNum("otherCost"),
-      shareholderCount: Math.max(1, Math.round(readNum("shareholderCount") || 1)),
-      names: document.getElementById("shareholderNames").value
-        .split("\n").map(n => n.trim()).filter(Boolean)
-    };
-    saveState("Expenses saved");
-    toast("✓ Expenses saved with live calculations.");
-  });
+  // Scroll to top of section
+  document.getElementById(section)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  document.getElementById("resetExpenses").addEventListener("click", () => {
-    state.expenses = structuredClone(defaultState.expenses);
-    hydrateForm();
-    saveState("Expenses reset");
-    toast("Expense tracker has been reset.");
-  });
-
-  // Live expense calculation
-  ["animalCost","butcherCost","transportCost","otherCost","shareholderCount"].forEach(id => {
-    document.getElementById(id).addEventListener("input", liveCalc);
-  });
-
-  // Recipients form
-  document.getElementById("recipientForm").addEventListener("submit", e => {
-    e.preventDefault();
-    const name = document.getElementById("recipientName").value.trim();
-    if (!name) { toast("Please enter a recipient name."); return; }
-    state.recipients.unshift({
-      id: uid(),
-      name,
-      group: document.getElementById("recipientGroup").value,
-      share: readNum("recipientShare") || 1,
-      status: document.getElementById("recipientStatus").value
-    });
-    e.target.reset();
-    saveState("Recipient added");
-    toast("✓ Recipient added to distribution board.");
-  });
-
-  document.getElementById("recipientSearch").addEventListener("input", renderRecipients);
-  document.getElementById("statusFilter").addEventListener("change", renderRecipients);
-
-  document.getElementById("exportData").addEventListener("click", exportData);
-  document.getElementById("importData").addEventListener("change", importData);
+  // Refresh relevant UI
+  if (section === 'dashboard') refreshDashboard();
+  if (section === 'summary')   refreshSummary();
 }
 
-function liveCalc() {
-  const animal    = readNum("animalCost");
-  const butcher   = readNum("butcherCost");
-  const transport = readNum("transportCost");
-  const other     = readNum("otherCost");
-  const count     = Math.max(1, Math.round(readNum("shareholderCount") || 1));
-  const total = animal + butcher + transport + other;
-  const per = total / count;
-  document.querySelectorAll("[data-dashboard='total']").forEach(el => el.textContent = fmtCurrency.format(total));
-  document.querySelectorAll("[data-dashboard='perShare']").forEach(el => el.textContent = fmtCurrency.format(per));
-}
+// Global helper for hero buttons
+window.scrollToSection = function(section) {
+  navigateTo(section);
+};
 
-/* ── Form hydration ────────────────────────── */
-function hydrateForm() {
-  document.getElementById("animalCost").value    = state.expenses.animal    || "";
-  document.getElementById("butcherCost").value   = state.expenses.butcher   || "";
-  document.getElementById("transportCost").value = state.expenses.transport || "";
-  document.getElementById("otherCost").value     = state.expenses.other     || "";
-  document.getElementById("shareholderCount").value = state.expenses.shareholderCount || 1;
-  document.getElementById("shareholderNames").value = state.expenses.names.join("\n");
-}
+// ===== THEME =====
+function initTheme() {
+  const btn  = document.getElementById('themeToggle');
+  const icon = document.getElementById('themeIcon');
+  const saved = localStorage.getItem('qurbani_theme') || 'dark';
+  applyTheme(saved);
 
-/* ── Render all ────────────────────────────── */
-function renderAll() {
-  // Theme
-  document.body.classList.toggle("light", state.theme === "light");
-  const icon = document.getElementById("themeIcon");
-  if (icon) icon.textContent = state.theme === "dark" ? "◐" : "●";
-
-  renderDashboard();
-  renderChart();
-  renderShareholders();
-  renderRecipients();
-  renderActivities();
-}
-
-function renderDashboard() {
-  const total     = getTotal();
-  const count     = Math.max(1, state.expenses.shareholderCount || state.expenses.names.length || 1);
-  const perShare  = total / count;
-  const pending   = state.recipients.filter(r => r.status !== "Completed").length;
-  const completed = state.recipients.filter(r => r.status === "Completed").length;
-  const progress  = state.recipients.length
-    ? Math.round((completed / state.recipients.length) * 100)
-    : 0;
-
-  setAll("total",        fmtCurrency.format(total));
-  setAll("perShare",     fmtCurrency.format(perShare));
-  setAll("shareholders", count);
-  setAll("pending",      pending);
-  setAll("completed",    completed);
-  setAll("progress",     `${progress}%`);
-
-  // SVG ring
-  const fill = document.getElementById("ringFill");
-  if (fill) {
-    const circumference = 2 * Math.PI * 50;
-    const offset = circumference - (progress / 100) * circumference;
-    fill.style.strokeDasharray  = circumference;
-    fill.style.strokeDashoffset = offset;
-  }
-}
-
-function renderChart() {
-  const chart = document.getElementById("expenseChart");
-  if (!chart) return;
-  const rows = [
-    ["Animal",    state.expenses.animal],
-    ["Butcher",   state.expenses.butcher],
-    ["Transport", state.expenses.transport],
-    ["Other",     state.expenses.other]
-  ];
-  const max = Math.max(1, ...rows.map(([, v]) => v));
-  chart.innerHTML = rows.map(([label, val]) => `
-    <div class="bar-row">
-      <span>${label}</span>
-      <div class="bar-track">
-        <div class="bar-fill" style="width:${(val / max) * 100}%"></div>
-      </div>
-      <strong>${fmtCurrency.format(val)}</strong>
-    </div>
-  `).join("");
-}
-
-function renderShareholders() {
-  const list = document.getElementById("shareholdersList");
-  if (!list) return;
-  const names = state.expenses.names.length
-    ? state.expenses.names
-    : Array.from({ length: state.expenses.shareholderCount || 0 }, (_, i) => `Shareholder ${i + 1}`);
-  list.innerHTML = names.map(n => `<span class="share-pill">${escHtml(n)}</span>`).join("");
-}
-
-function renderRecipients() {
-  const list   = document.getElementById("recipientList");
-  if (!list) return;
-  const search = document.getElementById("recipientSearch").value.toLowerCase();
-  const filter = document.getElementById("statusFilter").value;
-  const items  = state.recipients.filter(r => {
-    const matchSearch = `${r.name} ${r.group}`.toLowerCase().includes(search);
-    const matchFilter = filter === "All" || r.status === filter;
-    return matchSearch && matchFilter;
-  });
-
-  if (!items.length) {
-    list.innerHTML = `<div class="recipient-card" style="justify-content:center">
-      <p style="color:var(--text-muted);font-size:.85rem">No recipients match this view.</p>
-    </div>`;
-    return;
-  }
-
-  list.innerHTML = items.map(r => {
-    const statusClass = r.status.split(" ")[0];
-    return `
-      <div class="recipient-card">
-        <div class="rc-info">
-          <h4>${escHtml(r.name)}</h4>
-          <p>${escHtml(r.group)} · ${r.share} share</p>
-          <span class="status-badge ${statusClass}">${statusEmoji(r.status)} ${r.status}</span>
-        </div>
-        <div class="rc-actions">
-          <button class="mini-btn" data-action="status" data-id="${r.id}" type="button">Update</button>
-          <button class="mini-btn delete" data-action="delete" data-id="${r.id}" type="button">Remove</button>
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  list.querySelectorAll(".mini-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const { id, action } = btn.dataset;
-      if (action === "delete") {
-        state.recipients = state.recipients.filter(r => r.id !== id);
-        saveState("Recipient removed");
-        toast("Recipient removed.");
-        return;
-      }
-      const r = state.recipients.find(r => r.id === id);
-      if (!r) return;
-      const cycle = ["Pending", "Partially Delivered", "Completed"];
-      r.status = cycle[(cycle.indexOf(r.status) + 1) % cycle.length];
-      saveState("Delivery status updated");
-      toast(`Status updated to: ${r.status}`);
-    });
+  btn.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    applyTheme(current);
+    localStorage.setItem('qurbani_theme', current);
   });
 }
 
-function renderActivities() {
-  const list  = document.getElementById("activityList");
-  const count = document.getElementById("activityCount");
-  if (!list) return;
-  list.innerHTML = state.activities
-    .map(a => `<li>${escHtml(a)}</li>`)
-    .join("");
-  if (count) count.textContent = state.activities.length;
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const icon = document.getElementById('themeIcon');
+  icon.className = theme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
 }
 
-function renderMasail() {
-  const acc = document.getElementById("masailAccordion");
-  if (!acc) return;
-  acc.innerHTML = masail.map((item, i) => `
-    <article class="accordion-item ${i === 0 ? "open" : ""}">
-      <button class="accordion-trigger" type="button" aria-expanded="${i === 0}">
-        <div class="accordion-trigger-inner">
-          <span class="acc-icon">${item.icon}</span>
-          <span>${escHtml(item.title)}</span>
-        </div>
-        <span class="acc-chevron">+</span>
-      </button>
-      <div class="accordion-content">
-        <div class="accordion-body bangla">
-          ${item.lines.map(l => `<p>${escHtml(l)}</p>`).join("")}
-        </div>
-      </div>
-    </article>
-  `).join("");
-
-  acc.querySelectorAll(".accordion-trigger").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const item = btn.closest(".accordion-item");
-      item.classList.toggle("open");
-      btn.setAttribute("aria-expanded", item.classList.contains("open"));
-    });
-  });
+// ===== EID COUNTDOWN =====
+function initCountdown() {
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
 }
 
-/* ── Intersection reveal ───────────────────── */
-function setupReveal() {
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        const el = entry.target;
-        const delay = parseFloat(el.style.getPropertyValue("--delay") || "0");
-        setTimeout(() => el.classList.add("visible"), delay * 1000);
-        obs.unobserve(el);
-      }
-    });
-  }, { threshold: 0.1 });
-  document.querySelectorAll(".reveal").forEach(el => obs.observe(el));
-}
-
-/* ── Active nav ────────────────────────────── */
-function setupActiveNav() {
-  const sections = document.querySelectorAll(".section");
-  const links    = document.querySelectorAll(".nav-link");
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const id = entry.target.id;
-        links.forEach(l => {
-          l.classList.toggle("active", l.dataset.section === id);
-        });
-      }
-    });
-  }, { threshold: 0.3 });
-  sections.forEach(s => obs.observe(s));
-}
-
-/* ── Countdown ─────────────────────────────── */
 function updateCountdown() {
-  const target = new Date("2026-05-28T07:00:00+06:00");
+  // Eid ul-Adha 2026: May 28, 2026 — Bangladesh Standard Time (UTC+6)
+  // In UTC that is May 27, 2026 18:00 UTC
+  const target = new Date('2026-05-28T00:00:00+06:00');
   const now    = new Date();
   const diff   = target - now;
-  const el     = document.getElementById("eidCountdown");
-  if (!el) return;
+
   if (diff <= 0) {
-    el.textContent = "Eid season is here ☾";
+    document.getElementById('cdDays').textContent  = '0';
+    document.getElementById('cdHours').textContent = '0';
+    document.getElementById('cdMins').textContent  = '0';
+    document.getElementById('cdSecs').textContent  = '0';
     return;
   }
-  const d  = Math.floor(diff / 86400000);
-  const h  = Math.floor((diff % 86400000) / 3600000);
-  const m  = Math.floor((diff % 3600000) / 60000);
-  el.textContent = `${d}d ${h}h ${m}m`;
+
+  const days  = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins  = Math.floor((diff % 3600000)  / 60000);
+  const secs  = Math.floor((diff % 60000)    / 1000);
+
+  document.getElementById('cdDays').textContent  = days;
+  document.getElementById('cdHours').textContent = hours;
+  document.getElementById('cdMins').textContent  = mins;
+  document.getElementById('cdSecs').textContent  = secs;
 }
 
-/* ── Export / Import ───────────────────────── */
-function exportData() {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-  const url  = URL.createObjectURL(blob);
-  const a    = Object.assign(document.createElement("a"), {
-    href: url,
-    download: "qurbani-for-allah-backup.json"
+// ===== BANGLA NUMBER CONVERTER =====
+function n {
+  const digits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+  return String(n).split('').map(d => digits[+d] ?? d).join('');
+}
+
+function formatTaka(n) {
+  if (n === 0) return '৳ 0';
+  return '৳ ' + Math.round(n).toLocaleString('en-IN');
+}
+
+// ===== EXPENSE FORM =====
+let selectedShares = 1;
+let liveExpense = { animal: 0, butcher: 0, transport: 0, extra: 0 };
+
+function initExpenseForm() {
+  // Share buttons
+  document.querySelectorAll('.share-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedShares = parseInt(btn.dataset.val);
+      document.querySelectorAll('.share-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      buildContributorInputs(selectedShares);
+      recalcLive();
+    });
   });
+
+  // Set default active
+  document.querySelector('.share-btn[data-val="1"]').classList.add('active');
+  buildContributorInputs(1);
+
+  // Number inputs live update
+  ['animalCost','butcherCost','transportCost','extraCost'].forEach(id => {
+    document.getElementById(id).addEventListener('input', recalcLive);
+  });
+
+  // Save
+  document.getElementById('saveExpenseBtn').addEventListener('click', saveExpense);
+  document.getElementById('clearExpenseBtn').addEventListener('click', clearExpenseForm);
+}
+
+function buildContributorInputs(count) {
+  const list = document.getElementById('contributorsList');
+  list.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const wrap = document.createElement('div');
+    wrap.className = 'contributor-input-wrap';
+    wrap.innerHTML = `
+      <div class="contributor-num">${i + 1}</div>
+      <input class="contributor-field" type="text"
+        placeholder="Shareholder ${i + 1} name..."
+        data-idx="${i}"
+        value="${appState.expense.contributors[i] || ''}" />
+    `;
+    list.appendChild(wrap);
+  }
+}
+
+function recalcLive() {
+  liveExpense.animal    = parseFloat(document.getElementById('animalCost').value)    || 0;
+  liveExpense.butcher   = parseFloat(document.getElementById('butcherCost').value)   || 0;
+  liveExpense.transport = parseFloat(document.getElementById('transportCost').value) || 0;
+  liveExpense.extra     = parseFloat(document.getElementById('extraCost').value)     || 0;
+
+  const total  = liveExpense.animal + liveExpense.butcher + liveExpense.transport + liveExpense.extra;
+  const perPer = selectedShares > 0 ? total / selectedShares : 0;
+
+  document.getElementById('lt_animal').textContent    = formatTaka(liveExpense.animal);
+  document.getElementById('lt_butcher').textContent   = formatTaka(liveExpense.butcher);
+  document.getElementById('lt_transport').textContent = formatTaka(liveExpense.transport);
+  document.getElementById('lt_extra').textContent     = formatTaka(liveExpense.extra);
+  document.getElementById('lt_total').textContent     = formatTaka(total);
+  document.getElementById('lt_per').textContent       = formatTaka(perPer);
+}
+
+function saveExpense() {
+  const a = parseFloat(document.getElementById('animalCost').value)    || 0;
+  const b = parseFloat(document.getElementById('butcherCost').value)   || 0;
+  const t = parseFloat(document.getElementById('transportCost').value) || 0;
+  const e = parseFloat(document.getElementById('extraCost').value)     || 0;
+  const total = a + b + t + e;
+
+  if (total === 0) {
+    showToast('Please add at least one expense!', 'error', 'fas fa-exclamation-circle');
+    return;
+  }
+
+  // Collect contributor names
+  const names = [];
+  document.querySelectorAll('.contributor-field').forEach(inp => names.push(inp.value.trim()));
+
+  appState.expense = {
+    animal: a, butcher: b, transport: t, extra: e,
+    shares: selectedShares, contributors: names,
+    savedAt: new Date().toLocaleString('en-GB')
+  };
+
+  addActivity('fas fa-coins', `Total ৳${Math.round(total)} expense saved`);
+  saveState();
+  refreshAllUI();
+  showToast('Expense saved successfully!', 'success', 'fas fa-check-circle');
+}
+
+function clearExpenseForm() {
+  ['animalCost','butcherCost','transportCost','extraCost'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  selectedShares = 1;
+  document.querySelectorAll('.share-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.share-btn[data-val="1"]').classList.add('active');
+  buildContributorInputs(1);
+  recalcLive();
+}
+
+function renderSavedExpense() {
+  const el = document.getElementById('savedExpenseDisplay');
+  const exp = appState.expense;
+  const total = (exp.animal || 0) + (exp.butcher || 0) + (exp.transport || 0) + (exp.extra || 0);
+
+  if (total === 0) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-file-invoice"></i><p>Nothing saved yet</p></div>';
+    return;
+  }
+
+  const per = exp.shares ? total / exp.shares : 0;
+  const rows = [
+    ['Animal Cost', formatTaka(exp.animal || 0)],
+    ['Butcher Fee', formatTaka(exp.butcher || 0)],
+    ['Transport', formatTaka(exp.transport || 0)],
+    ['Additional', formatTaka(exp.extra || 0)],
+  ];
+
+  el.innerHTML = rows.map(([l, v]) =>
+    `<div class="sed-row"><span>${l}</span><span>${v}</span></div>`
+  ).join('') +
+    `<div class="sed-row bold"><span>Total</span><span>${formatTaka(total)}</span></div>
+     <div class="sed-row bold"><span>Per Shareholder (${exp.shares || 1})</span><span>${formatTaka(per)}</span></div>`;
+}
+
+// ===== DISTRIBUTION FORM =====
+let selectedCategory = 'family';
+
+function initDistributionForm() {
+  // Category buttons
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedCategory = btn.dataset.cat;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Add recipient
+  document.getElementById('addRecipientBtn').addEventListener('click', addRecipient);
+
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderRecipients(btn.dataset.filter);
+    });
+  });
+}
+
+function addRecipient() {
+  const name  = document.getElementById('recipientName').value.trim();
+  const share = parseFloat(document.getElementById('meatShare').value) || 0;
+  const status = document.getElementById('initialStatus').value;
+  const note  = document.getElementById('recipientNote').value.trim();
+
+  if (!name) {
+    showToast('Please enter a name!', 'error', 'fas fa-exclamation-circle');
+    return;
+  }
+
+  const recipient = {
+    id:       Date.now(),
+    name,
+    category: selectedCategory,
+    share,
+    status,
+    note,
+    addedAt:  new Date().toLocaleString('en-GB')
+  };
+
+  appState.recipients.push(recipient);
+  addActivity('fas fa-drumstick-bite', `"${name}" added to the recipient list`);
+  saveState();
+  refreshAllUI();
+
+  // Reset form
+  document.getElementById('recipientName').value  = '';
+  document.getElementById('meatShare').value      = '';
+  document.getElementById('recipientNote').value  = '';
+  document.getElementById('initialStatus').value  = 'pending';
+
+  showToast('Recipient added!', 'success', 'fas fa-check-circle');
+  renderRecipients('all');
+}
+
+const catLabels = {
+  family: 'Family', relatives: 'Relatives',
+  neighbours: 'Neighbours', needy: 'Needy'
+};
+const catIcons = {
+  family: 'fas fa-home', relatives: 'fas fa-users',
+  neighbours: 'fas fa-house-user', needy: 'fas fa-hand-holding-heart'
+};
+const statusLabels = { pending: '🔴 Pending', partial: '🟡 Partial', done: '🟢 Done' };
+const statusClass  = { pending: 'status-pending', partial: 'status-partial', done: 'status-done' };
+
+function renderRecipients(filter = 'all') {
+  const list = document.getElementById('recipientsList');
+  let items = appState.recipients;
+  if (filter !== 'all') items = items.filter(r => r.category === filter);
+
+  if (items.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state large-empty">
+        <i class="fas fa-drumstick-bite"></i>
+        <p>${filter === 'all' ? 'No recipients added yet' : 'No one in this category'}</p>
+        <small>Use the form on the left to add recipients</small>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = items.map(r => `
+    <div class="recipient-card" data-id="${r.id}">
+      <div class="rc-cat-icon cat-${r.category}">
+        <i class="${catIcons[r.category]}"></i>
+      </div>
+      <div class="rc-info">
+        <div class="rc-name">${r.name}</div>
+        <div class="rc-meta">
+          <span>${catLabels[r.category]}</span>
+          ${r.share ? `<span>• ${r.share} kg</span>` : ''}
+          <span>• ${r.addedAt}</span>
+        </div>
+        ${r.note ? `<div class="rc-note">${r.note}</div>` : ''}
+      </div>
+      <div class="rc-status-wrap">
+        <span class="status-badge ${statusClass[r.status]}">${statusLabels[r.status]}</span>
+        <div class="rc-actions">
+          <button class="rc-action-btn" onclick="cycleStatus(${r.id})" title="Change Status">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+          <button class="rc-action-btn rc-del-btn" onclick="deleteRecipient(${r.id})" title="Delete">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+window.cycleStatus = function(id) {
+  const cycle = { pending: 'partial', partial: 'done', done: 'pending' };
+  const r = appState.recipients.find(x => x.id === id);
+  if (!r) return;
+  r.status = cycle[r.status];
+  addActivity('fas fa-sync-alt', `"${r.name}" status updated to "${statusLabels[r.status]}"`);
+  saveState();
+  refreshAllUI();
+  renderRecipients(document.querySelector('.filter-btn.active')?.dataset.filter || 'all');
+};
+
+window.deleteRecipient = function(id) {
+  const r = appState.recipients.find(x => x.id === id);
+  if (!r) return;
+  appState.recipients = appState.recipients.filter(x => x.id !== id);
+  addActivity('fas fa-trash', `"${r.name}" removed from the list`);
+  saveState();
+  refreshAllUI();
+  renderRecipients(document.querySelector('.filter-btn.active')?.dataset.filter || 'all');
+  showToast('Recipient removed', 'info', 'fas fa-info-circle');
+};
+
+// ===== MASAIL =====
+function initMasail() {
+  document.querySelectorAll('.masail-card-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const card = header.parentElement;
+      const wasOpen = card.classList.contains('open');
+      // Close all
+      document.querySelectorAll('.masail-card').forEach(c => c.classList.remove('open'));
+      // Open clicked if was not open
+      if (!wasOpen) card.classList.add('open');
+    });
+  });
+
+  // Search
+  document.getElementById('masailSearch').addEventListener('input', (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('.masail-card').forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = (!q || text.includes(q)) ? '' : 'none';
+    });
+  });
+}
+
+// ===== ACTIVITY LOG =====
+function addActivity(icon, text) {
+  appState.activities.unshift({
+    icon, text,
+    time: new Date().toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' })
+  });
+  if (appState.activities.length > 20) appState.activities = appState.activities.slice(0, 20);
+}
+
+// ===== REFRESH ALL UI =====
+function refreshAllUI() {
+  refreshHeroStats();
+  refreshDashboard();
+  renderSavedExpense();
+  renderRecipients('all');
+  updateStatusSummaryBar();
+}
+
+function refreshHeroStats() {
+  const exp   = appState.expense;
+  const total = (exp.animal || 0) + (exp.butcher || 0) + (exp.transport || 0) + (exp.extra || 0);
+  const done  = appState.recipients.filter(r => r.status === 'done').length;
+  const pct   = appState.recipients.length ? Math.round(done / appState.recipients.length * 100) : 0;
+
+  animateValue('heroTotalExpense', total, v => formatTaka(v));
+  document.getElementById('heroShareCount').textContent = exp.shares || 0;
+  document.getElementById('heroDelivered').textContent  = pct  + '%';
+}
+
+function refreshDashboard() {
+  const exp   = appState.expense;
+  const total = (exp.animal || 0) + (exp.butcher || 0) + (exp.transport || 0) + (exp.extra || 0);
+  const shares = exp.shares || 1;
+  const per    = shares > 0 && total > 0 ? total / shares : 0;
+  const done   = appState.recipients.filter(r => r.status === 'done').length;
+  const pct    = appState.recipients.length ? Math.round(done / appState.recipients.length * 100) : 0;
+
+  // KPI
+  document.getElementById('kpiTotalExpense').textContent = formatTaka(total);
+  document.getElementById('kpiShareCount').textContent   = exp.shares || 0 ;
+  document.getElementById('kpiRecipients').textContent   = appState.recipients.length ;
+  document.getElementById('kpiCompleted').textContent    = done ;
+
+  // Per share
+  document.getElementById('dashPerShare').textContent = formatTaka(per);
+
+  // Contributor breakdown
+  const breakdown = document.getElementById('dashShareBreakdown');
+  if (exp.contributors && exp.contributors.some(c => c)) {
+    breakdown.innerHTML = exp.contributors.map((name, i) => `
+      <div class="share-breakdown-item">
+        <span class="sbi-name">${name || `Shareholder ${i + 1}`}</span>
+        <span class="sbi-amt">${formatTaka(per)}</span>
+      </div>`).join('');
+  } else {
+    breakdown.innerHTML = '';
+  }
+
+  // Progress ring
+  const offset = 364 - (364 * pct / 100);
+  document.getElementById('ringFill').style.strokeDashoffset = offset;
+  document.getElementById('ringPercent').textContent = pct  + '%';
+
+  // Expense bars
+  renderExpenseBars(exp, total);
+
+  // Activity feed
+  renderActivityFeed();
+
+  updateStatusSummaryBar();
+}
+
+function renderExpenseBars(exp, total) {
+  const container = document.getElementById('expenseBars');
+  if (total === 0) {
+    container.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>No expenses added yet</p></div>';
+    return;
+  }
+
+  const items = [
+    ['Animal Cost', exp.animal || 0],
+    ['Butcher Fee', exp.butcher || 0],
+    ['Transport', exp.transport || 0],
+    ['Additional', exp.extra || 0],
+  ];
+
+  container.innerHTML = items.map(([label, val]) => {
+    const pct = total > 0 ? Math.round(val / total * 100) : 0;
+    return `
+      <div class="expense-bar-item">
+        <div class="eb-label">
+          <span>${label}</span>
+          <span>${formatTaka(val)} (${pct}%)</span>
+        </div>
+        <div class="eb-track">
+          <div class="eb-fill" style="width: ${pct}%"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderActivityFeed() {
+  const feed = document.getElementById('activityFeed');
+  if (!appState.activities.length) {
+    feed.innerHTML = '<div class="empty-state"><i class="fas fa-bell-slash"></i><p>No activity yet</p></div>';
+    return;
+  }
+  feed.innerHTML = appState.activities.slice(0, 8).map(a => `
+    <div class="activity-item">
+      <i class="${a.icon} ai-icon"></i>
+      <div>
+        <div class="ai-text">${a.text}</div>
+        <div class="ai-time">${a.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+function updateStatusSummaryBar() {
+  const pending = appState.recipients.filter(r => r.status === 'pending').length;
+  const partial = appState.recipients.filter(r => r.status === 'partial').length;
+  const done    = appState.recipients.filter(r => r.status === 'done').length;
+  const total   = appState.recipients.length;
+
+  document.getElementById('ssbPending').textContent = pending;
+  document.getElementById('ssbPartial').textContent = partial;
+  document.getElementById('ssbDone').textContent    = done;
+  document.getElementById('ssbTotal').textContent   = total;
+}
+
+// ===== SUMMARY =====
+function refreshSummary() {
+  const exp   = appState.expense;
+  const total = (exp.animal || 0) + (exp.butcher || 0) + (exp.transport || 0) + (exp.extra || 0);
+  const shares = exp.shares || 0;
+  const per    = shares > 0 && total > 0 ? total / shares : 0;
+  const done   = appState.recipients.filter(r => r.status === 'done').length;
+  const pct    = appState.recipients.length ? Math.round(done / appState.recipients.length * 100) : 0;
+
+  document.getElementById('sumDate').textContent      = exp.savedAt || '—';
+  document.getElementById('sumTotalExp').textContent  = formatTaka(total);
+  document.getElementById('sumPerShare').textContent  = formatTaka(per);
+  document.getElementById('sumSharers').textContent   = shares ;
+  document.getElementById('sumDelivery').textContent  = pct  + '%';
+
+  // Breakdown
+  const br = document.getElementById('sumBreakdown');
+  br.innerHTML = [
+    ['Animal Cost', exp.animal || 0],
+    ['Butcher Fee', exp.butcher || 0],
+    ['Transport', exp.transport || 0],
+    ['Additional', exp.extra || 0],
+    ['Total', total],
+  ].map(([l, v]) => `<div class="sbr-row"><span>${l}</span><span>${formatTaka(v)}</span></div>`).join('');
+
+  // Sharers
+  const sl = document.getElementById('sumSharers_list');
+  if (exp.contributors && exp.contributors.some(c => c)) {
+    sl.innerHTML = exp.contributors.map((n, i) =>
+      `<div class="sharer-chip">${n || `Shareholder ${i + 1}`}</div>`).join('');
+  } else {
+    sl.innerHTML = `<span style="color:var(--text-dim);font-family:'Noto Serif Bengali',serif;font-size:0.82rem;">No shareholder names saved</span>`;
+  }
+
+  // Distribution list
+  const dl = document.getElementById('sumDistList');
+  if (!appState.recipients.length) {
+    dl.innerHTML = `<span style="color:var(--text-dim);font-family:'Noto Serif Bengali',serif;font-size:0.82rem;">No recipients added</span>`;
+  } else {
+    dl.innerHTML = appState.recipients.map(r => `
+      <div class="sdr-row">
+        <span>${r.name} <small style="color:var(--text-dim)">(${catLabels[r.category]})</small></span>
+        <span class="status-badge ${statusClass[r.status]}">${statusLabels[r.status]}</span>
+      </div>`).join('');
+  }
+}
+
+// ===== EXPORT / PRINT / CLEAR =====
+window.exportData = function() {
+  const data = JSON.stringify(appState, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'qurbani-for-allah-backup.json';
   a.click();
   URL.revokeObjectURL(url);
-  saveState("Backup exported");
-  toast("✓ JSON backup exported.");
-}
+  showToast('Data exported successfully!', 'success', 'fas fa-download');
+};
 
-function importData(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      state = { ...structuredClone(defaultState), ...JSON.parse(reader.result) };
-      hydrateForm();
-      saveState("Backup imported");
-      toast("✓ Backup imported successfully.");
-    } catch {
-      toast("Could not import this backup file.");
-    }
+window.printSummary = function() {
+  window.print();
+};
+
+window.clearAllData = function() {
+  if (!confirm('Are you sure you want to clear all data?')) return;
+  appState = {
+    expense: { animal:0, butcher:0, transport:0, extra:0, shares:1, contributors:[] },
+    recipients: [],
+    activities: []
   };
-  reader.readAsText(file);
-}
+  saveState();
+  refreshAllUI();
+  clearExpenseForm();
+  showToast('All data cleared', 'info', 'fas fa-trash');
+};
 
-/* ── Helpers ───────────────────────────────── */
-function getTotal() {
-  return state.expenses.animal + state.expenses.butcher
-       + state.expenses.transport + state.expenses.other;
-}
-
-function readNum(id) {
-  return Number(document.getElementById(id)?.value) || 0;
-}
-
-function setAll(key, value) {
-  document.querySelectorAll(`[data-dashboard="${key}"]`).forEach(el => {
-    el.textContent = value;
-  });
-}
-
-function statusEmoji(status) {
-  return { "Pending": "🔴", "Partially Delivered": "🟡", "Completed": "🟢" }[status] || "";
-}
-
-let toastTimer;
-function toast(msg) {
-  const el = document.getElementById("toast");
+// ===== ANIMATED VALUE =====
+function animateValue(id, target, formatter, duration = 800) {
+  const el = document.getElementById(id);
   if (!el) return;
-  el.textContent = msg;
-  el.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+  const start = 0;
+  const startTime = performance.now();
+
+  function update(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.round(start + (target - start) * eased);
+    el.textContent = formatter(current);
+    if (progress < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
 }
 
-function escHtml(str) {
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+// ===== TOAST =====
+function showToast(msg, type = 'info', icon = 'fas fa-info-circle') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<i class="${icon}"></i><span>${msg}</span>`;
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add('toast-exit');
+    setTimeout(() => toast.remove(), 400);
+  }, 3200);
 }
+
+// ===== INTERSECTION OBSERVER (reveal on scroll) =====
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.kpi-card, .dash-card, .masail-card').forEach(el => {
+  el.style.opacity    = '0';
+  el.style.transform  = 'translateY(20px)';
+  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  revealObserver.observe(el);
+});

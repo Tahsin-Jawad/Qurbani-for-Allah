@@ -1,399 +1,792 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Qurbani for Allah — Tahsin Jawad</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qurbani for Allah</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
 
-  <!-- Loader -->
-  <div class="loader" id="loader">
-    <div class="loader-inner">
-      <div class="loader-ring"></div>
-      <div class="loader-crescent">☾</div>
+<!-- ==================== LOADING SCREEN ==================== -->
+<div id="loadingScreen" class="loading-screen">
+  <div class="loader-content">
+    <div class="loader-crescent">☽</div>
+    <div class="loader-title">Qurbani for Allah</div>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+    <div class="loader-sub">Bismillahir Rahmanir Rahim</div>
+  </div>
+</div>
+
+<!-- ==================== AMBIENT BACKGROUND ==================== -->
+<div class="ambient-bg">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="stars-layer"></div>
+  <div class="geometric-pattern"></div>
+</div>
+
+<!-- ==================== NAVBAR ==================== -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <span class="nav-crescent">☽</span>
+      <span class="nav-title">Qurbani for Allah</span>
+    </div>
+    <div class="nav-links" id="navLinks">
+      <a href="#dashboard" class="nav-link active" data-section="dashboard"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="#expense" class="nav-link" data-section="expense"><i class="fas fa-coins"></i><span>Expense</span></a>
+      <a href="#distribution" class="nav-link" data-section="distribution"><i class="fas fa-drumstick-bite"></i><span>Distribution</span></a>
+      <a href="#masail" class="nav-link" data-section="masail"><i class="fas fa-book-open"></i><span>মাসাইল</span></a>
+      <a href="#summary" class="nav-link" data-section="summary"><i class="fas fa-chart-pie"></i><span>Summary</span></a>
+    </div>
+    <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+        <i class="fas fa-moon" id="themeIcon"></i>
+      </button>
+      <button class="nav-hamburger" id="navHamburger">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ==================== MOBILE NAV ==================== -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#dashboard" class="mobile-nav-link" data-section="dashboard"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+  <a href="#expense" class="mobile-nav-link" data-section="expense"><i class="fas fa-coins"></i><span>Expense</span></a>
+  <a href="#distribution" class="mobile-nav-link" data-section="distribution"><i class="fas fa-drumstick-bite"></i><span>Distribution</span></a>
+  <a href="#masail" class="mobile-nav-link" data-section="masail"><i class="fas fa-book-open"></i><span>মাসাইল</span></a>
+  <a href="#summary" class="mobile-nav-link" data-section="summary"><i class="fas fa-chart-pie"></i><span>Summary</span></a>
+</div>
+
+<!-- ==================== HERO SECTION ==================== -->
+<section class="hero-section" id="heroSection">
+  <div class="hero-content">
+    <div class="hero-badge"><span>☽</span> Eid ul-Adha</div>
+    <h1 class="hero-title">
+      <span class="hero-title-main">Qurbani</span>
+      <span class="hero-title-sub">for Allah</span>
+    </h1>
+    <p class="hero-verse">﴿ وَلِكُلِّ أُمَّةٍ جَعَلْنَا مَنسَكًا لِّيَذْكُرُوا اسْمَ اللَّهِ ﴾</p>
+    <p class="hero-verse-bn">For every nation We have ordained a sacrifice, that they may pronounce the name of Allah — Surah Al-Hajj 34</p>
+    <div class="hero-cta-group">
+      <button class="btn-hero-primary" onclick="scrollToSection('dashboard')">
+        <i class="fas fa-th-large"></i> View Dashboard
+      </button>
+      <button class="btn-hero-secondary" onclick="scrollToSection('masail')">
+        <i class="fas fa-book-open"></i> Read Masail
+      </button>
+    </div>
+
+    <div class="hero-stats-row">
+      <div class="hero-stat">
+        <span class="hero-stat-icon">🐄</span>
+        <span class="hero-stat-val" id="heroTotalExpense">৳ 0</span>
+        <span class="hero-stat-label">Total Expense</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-icon">👥</span>
+        <span class="hero-stat-val" id="heroShareCount">0</span>
+        <span class="hero-stat-label">Shareholders</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-icon">🍖</span>
+        <span class="hero-stat-val" id="heroDelivered">0%</span>
+        <span class="hero-stat-label">Delivered</span>
+      </div>
+    </div>
+
+    <!-- Eid Countdown -->
+    <div class="eid-countdown" id="eidCountdown">
+      <div class="countdown-label">Eid ul-Adha 2026 Countdown</div>
+      <div class="countdown-boxes">
+        <div class="cd-box"><span id="cdDays">--</span><small>Days</small></div>
+        <div class="cd-box"><span id="cdHours">--</span><small>Hours</small></div>
+        <div class="cd-box"><span id="cdMins">--</span><small>Mins</small></div>
+        <div class="cd-box"><span id="cdSecs">--</span><small>Secs</small></div>
+      </div>
     </div>
   </div>
 
-  <!-- Background canvas -->
-  <canvas class="bg-canvas" id="bgCanvas"></canvas>
-
-  <!-- Geometric ornaments -->
-  <div class="ornament ornament-tl"></div>
-  <div class="ornament ornament-br"></div>
-
-  <!-- Header -->
-  <header class="topbar" id="topbar">
-    <a class="brand" href="#home" aria-label="Qurbani for Allah home">
-      <div class="brand-mark">☾</div>
-      <div class="brand-text">
-        <span class="brand-title">Qurbani for Allah</span>
-        <span class="brand-sub">by Tahsin Jawad</span>
-      </div>
-    </a>
-    <nav class="nav" aria-label="Main navigation" id="mainNav">
-      <a href="#home" class="nav-link" data-section="home">Home</a>
-      <a href="#dashboard" class="nav-link" data-section="dashboard">Dashboard</a>
-      <a href="#expenses" class="nav-link" data-section="expenses">Expenses</a>
-      <a href="#distribution" class="nav-link" data-section="distribution">Distribution</a>
-      <a href="#masail" class="nav-link" data-section="masail">Masail</a>
-      <a href="#summary" class="nav-link" data-section="summary">Summary</a>
-    </nav>
-    <div class="header-actions">
-      <button class="hdr-btn" id="themeToggle" type="button" aria-label="Toggle theme">
-        <span id="themeIcon">◐</span>
-      </button>
-      <button class="hdr-btn menu-btn" id="menuToggle" type="button" aria-label="Open menu">
-        <span class="burger"><i></i><i></i><i></i></span>
-      </button>
+  <div class="hero-visual">
+    <div class="hero-lantern hero-lantern1">🪔</div>
+    <div class="hero-lantern hero-lantern2">🪔</div>
+    <div class="hero-moon">☽</div>
+    <div class="hero-stars">
+      <span>✦</span><span>✦</span><span>✦</span><span>✦</span><span>✦</span>
     </div>
-  </header>
-
-  <main id="mainContent">
-
-    <!-- Hero -->
-    <section class="section hero-section" id="home">
-      <div class="hero-layout">
-        <div class="hero-copy">
-          <p class="eyebrow reveal">☾ &nbsp;Spiritual care · Modern clarity</p>
-          <h1 class="hero-title reveal">
-            <em>Qurbani</em><br>for Allah
-          </h1>
-          <p class="hero-desc reveal">Plan every sacrifice with sincerity. Track expenses, manage shareholders, coordinate meat delivery, and explore essential Masail — all in one serene workspace.</p>
-          <div class="hero-ctas reveal">
-            <a class="cta-primary" href="#dashboard">
-              <span>Open Dashboard</span>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </a>
-            <a class="cta-ghost" href="#masail">Read Masail</a>
-          </div>
-        </div>
-        <div class="hero-card reveal">
-          <div class="hero-card-glow"></div>
-          <div class="hero-card-pattern"></div>
-          <div class="hc-moon">☾</div>
-          <div class="hc-bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
-          <div class="hc-countdown">
-            <span class="hc-label">Estimated Eid Countdown</span>
-            <strong class="hc-timer" id="eidCountdown">Calculating…</strong>
-          </div>
-          <div class="hc-metrics">
-            <div class="hc-metric">
-              <span>Total Cost</span>
-              <strong data-dashboard="total">$0</strong>
-            </div>
-            <div class="hc-metric">
-              <span>Shareholders</span>
-              <strong data-dashboard="shareholders">0</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="scroll-hint reveal">
-        <div class="scroll-dot"></div>
-        <span>Scroll to explore</span>
-      </div>
-    </section>
-
-    <!-- Dashboard -->
-    <section class="section" id="dashboard">
-      <div class="section-intro reveal">
-        <p class="eyebrow">☾ &nbsp;Overview</p>
-        <h2>Everything important,<br><em>beautifully visible.</em></h2>
-      </div>
-
-      <div class="greeting-card reveal" id="greetingCard">
-        <div class="gc-icon">☾</div>
-        <div class="gc-body">
-          <h3>Eid Mubarak from Jawad</h3>
-          <p>May every sacrifice be accepted with sincerity, gratitude, and infinite mercy. Allahu Akbar.</p>
-        </div>
-        <button class="gc-close" id="dismissGreeting" type="button" aria-label="Dismiss greeting">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </button>
-      </div>
-
-      <div class="stats-grid">
-        <article class="stat-card glass reveal" style="--delay:0s">
-          <div class="stat-icon">﷼</div>
-          <div class="stat-info">
-            <span>Total Expenses</span>
-            <strong data-dashboard="total">$0</strong>
-          </div>
-          <div class="stat-bar" data-bar="total"></div>
-        </article>
-        <article class="stat-card glass reveal" style="--delay:.08s">
-          <div class="stat-icon">÷</div>
-          <div class="stat-info">
-            <span>Per Share Cost</span>
-            <strong data-dashboard="perShare">$0</strong>
-          </div>
-          <div class="stat-bar" data-bar="perShare"></div>
-        </article>
-        <article class="stat-card glass reveal" style="--delay:.16s">
-          <div class="stat-icon">◎</div>
-          <div class="stat-info">
-            <span>Pending Recipients</span>
-            <strong data-dashboard="pending">0</strong>
-          </div>
-          <div class="stat-bar" data-bar="pending"></div>
-        </article>
-        <article class="stat-card glass reveal" style="--delay:.24s">
-          <div class="stat-icon">✓</div>
-          <div class="stat-info">
-            <span>Completed</span>
-            <strong data-dashboard="completed">0</strong>
-          </div>
-          <div class="stat-bar" data-bar="completed"></div>
-        </article>
-      </div>
-
-      <div class="dash-grid">
-        <article class="progress-card glass reveal">
-          <div class="progress-ring-wrap">
-            <svg class="ring-svg" viewBox="0 0 120 120" id="progressRingSvg">
-              <circle class="ring-track" cx="60" cy="60" r="50"/>
-              <circle class="ring-fill" cx="60" cy="60" r="50" id="ringFill"/>
-            </svg>
-            <span class="ring-label" data-dashboard="progress">0%</span>
-          </div>
-          <div class="progress-info">
-            <h3>Distribution Progress</h3>
-            <p>Completion updates instantly as delivery status changes across all recipients.</p>
-            <div class="progress-legend">
-              <span><i class="dot dot-done"></i>Completed</span>
-              <span><i class="dot dot-part"></i>Partial</span>
-              <span><i class="dot dot-pend"></i>Pending</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="chart-card glass reveal">
-          <div class="card-header">
-            <h3>Expense Breakdown</h3>
-            <span class="card-sig">Tahsin Jawad</span>
-          </div>
-          <div class="bar-chart" id="expenseChart"></div>
-        </article>
-
-        <article class="activity-card glass reveal">
-          <div class="card-header">
-            <h3>Recent Activities</h3>
-            <span class="activity-count" id="activityCount">0</span>
-          </div>
-          <ul class="activity-list" id="activityList"></ul>
-        </article>
-      </div>
-    </section>
-
-    <!-- Expenses -->
-    <section class="section" id="expenses">
-      <div class="section-intro reveal">
-        <p class="eyebrow">☾ &nbsp;Smart Tracker</p>
-        <h2>Clear cost sharing,<br><em>without the stress.</em></h2>
-      </div>
-      <div class="workspace-grid">
-        <form class="glass form-card reveal" id="expenseForm" novalidate>
-          <div class="form-section-label">Cost Breakdown</div>
-          <div class="field-grid">
-            <label class="field">
-              <span>Animal Purchase</span>
-              <div class="input-wrap">
-                <span class="input-prefix">$</span>
-                <input type="number" min="0" step="1" id="animalCost" placeholder="0">
-              </div>
-            </label>
-            <label class="field">
-              <span>Butcher Fee</span>
-              <div class="input-wrap">
-                <span class="input-prefix">$</span>
-                <input type="number" min="0" step="1" id="butcherCost" placeholder="0">
-              </div>
-            </label>
-            <label class="field">
-              <span>Transport</span>
-              <div class="input-wrap">
-                <span class="input-prefix">$</span>
-                <input type="number" min="0" step="1" id="transportCost" placeholder="0">
-              </div>
-            </label>
-            <label class="field">
-              <span>Other Costs</span>
-              <div class="input-wrap">
-                <span class="input-prefix">$</span>
-                <input type="number" min="0" step="1" id="otherCost" placeholder="0">
-              </div>
-            </label>
-          </div>
-          <div class="form-divider"></div>
-          <div class="form-section-label">Shareholders</div>
-          <label class="field">
-            <span>Total Shareholders</span>
-            <div class="input-wrap">
-              <span class="input-prefix">#</span>
-              <input type="number" min="1" step="1" id="shareholderCount" placeholder="1">
-            </div>
-          </label>
-          <label class="field full">
-            <span>Contributor Names <em style="font-weight:400;font-style:normal;opacity:.6">(one per line)</em></span>
-            <textarea id="shareholderNames" rows="4" placeholder="Ahmad&#10;Fatima&#10;Ibrahim"></textarea>
-          </label>
-          <div class="form-actions">
-            <button class="cta-primary" type="submit">
-              <span>Save Expenses</span>
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <button class="cta-ghost" type="button" id="resetExpenses">Reset</button>
-          </div>
-        </form>
-
-        <div class="glass insight-card reveal">
-          <div class="insight-header">
-            <h3>Live Calculation</h3>
-            <span class="card-sig">Tahsin Jawad</span>
-          </div>
-          <div class="insight-row">
-            <span>Total Cost</span>
-            <strong data-dashboard="total">$0</strong>
-          </div>
-          <div class="insight-row">
-            <span>Per Person Share</span>
-            <strong data-dashboard="perShare">$0</strong>
-          </div>
-          <div class="insight-divider"></div>
-          <p class="insight-label">Contributors</p>
-          <div class="shareholders-list" id="shareholdersList"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Distribution -->
-    <section class="section" id="distribution">
-      <div class="section-intro reveal">
-        <p class="eyebrow">☾ &nbsp;Meat Distribution</p>
-        <h2>Assign, search, and<br><em>complete every delivery.</em></h2>
-      </div>
-      <div class="workspace-grid">
-        <form class="glass form-card reveal" id="recipientForm" novalidate>
-          <div class="form-section-label">Add Recipient</div>
-          <label class="field full">
-            <span>Recipient Name</span>
-            <input type="text" id="recipientName" placeholder="Full name or household">
-          </label>
-          <label class="field">
-            <span>Group</span>
-            <select id="recipientGroup">
-              <option>Family</option>
-              <option>Relatives</option>
-              <option>Neighbours</option>
-              <option>Needy People</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>Assigned Share</span>
-            <div class="input-wrap">
-              <input type="number" min="0" step="0.25" id="recipientShare" placeholder="1">
-            </div>
-          </label>
-          <label class="field full">
-            <span>Delivery Status</span>
-            <select id="recipientStatus">
-              <option>Pending</option>
-              <option>Partially Delivered</option>
-              <option>Completed</option>
-            </select>
-          </label>
-          <button class="cta-primary" type="submit">
-            <span>Add Recipient</span>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </button>
-        </form>
-
-        <div class="glass board-card reveal">
-          <div class="board-tools">
-            <div class="search-wrap">
-              <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-              <input type="search" id="recipientSearch" placeholder="Search recipients…">
-            </div>
-            <select id="statusFilter" class="filter-select" aria-label="Filter delivery status">
-              <option value="All">All Status</option>
-              <option value="Pending">Pending</option>
-              <option value="Partially Delivered">Partially Delivered</option>
-              <option value="Completed">Completed</option>
-            </select>
-          </div>
-          <div class="recipient-list" id="recipientList"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Masail -->
-    <section class="section masail-section" id="masail">
-      <div class="section-intro reveal bangla-head">
-        <p class="eyebrow">☾ &nbsp;Islamic Guidance</p>
-        <h2 class="bangla">কুরবানির প্রয়োজনীয়<br><em>মাসায়েল</em></h2>
-      </div>
-      <div class="masail-grid" id="masailAccordion"></div>
-    </section>
-
-    <!-- Summary -->
-    <section class="section" id="summary">
-      <div class="section-intro reveal">
-        <p class="eyebrow">☾ &nbsp;Final Summary</p>
-        <h2>Backup, restore, and<br><em>close with confidence.</em></h2>
-      </div>
-      <div class="summary-grid">
-        <article class="glass summary-card reveal">
-          <div class="sum-icon">📋</div>
-          <h3>Qurbani Snapshot</h3>
-          <div class="sum-row">
-            <span>Total Expense</span>
-            <strong data-dashboard="total">$0</strong>
-          </div>
-          <div class="sum-row">
-            <span>Shareholders</span>
-            <strong data-dashboard="shareholders">0</strong>
-          </div>
-          <div class="sum-row">
-            <span>Distribution</span>
-            <strong data-dashboard="progress">0%</strong>
-          </div>
-        </article>
-        <article class="glass summary-card reveal">
-          <div class="sum-icon">💾</div>
-          <h3>Backup Center</h3>
-          <p>Export your full plan as JSON, or restore a previous backup at any time.</p>
-          <div class="backup-actions">
-            <button class="cta-primary" id="exportData" type="button">
-              <span>Export JSON</span>
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M3 6l4 4 4-4M1 11h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <label class="cta-ghost file-btn">
-              <span>Import JSON</span>
-              <input type="file" id="importData" accept="application/json">
-            </label>
-          </div>
-        </article>
-      </div>
-    </section>
-
-  </main>
-
-  <div class="toast-container">
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
   </div>
 
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <span class="footer-brand">☾ Qurbani for Allah</span>
-      <span class="footer-sig">Crafted with love by <em>Tahsin Jawad</em></span>
-    </div>
-  </footer>
+  <div class="scroll-indicator">
+    <div class="scroll-dot"></div>
+  </div>
+</section>
 
-  <script src="script.js"></script>
+<!-- ==================== MAIN APP ==================== -->
+<main class="main-app" id="mainApp">
+
+  <!-- ===== DASHBOARD ===== -->
+  <section class="app-section" id="dashboard">
+    <div class="section-header">
+      <div class="section-badge"><i class="fas fa-th-large"></i></div>
+      <h2 class="section-title">Dashboard</h2>
+      <p class="section-subtitle">Your Qurbani at a glance</p>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-gold">
+        <div class="kpi-icon"><i class="fas fa-coins"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">Total Expense</div>
+          <div class="kpi-value" id="kpiTotalExpense">৳ 0</div>
+        </div>
+        <div class="kpi-glow"></div>
+      </div>
+      <div class="kpi-card kpi-emerald">
+        <div class="kpi-icon"><i class="fas fa-users"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">Shareholders</div>
+          <div class="kpi-value" id="kpiShareCount">0</div>
+        </div>
+        <div class="kpi-glow"></div>
+      </div>
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-icon"><i class="fas fa-drumstick-bite"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">Recipients</div>
+          <div class="kpi-value" id="kpiRecipients">0</div>
+        </div>
+        <div class="kpi-glow"></div>
+      </div>
+      <div class="kpi-card kpi-rose">
+        <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">Completed</div>
+          <div class="kpi-value" id="kpiCompleted">0</div>
+        </div>
+        <div class="kpi-glow"></div>
+      </div>
+    </div>
+
+    <!-- Dashboard Lower -->
+    <div class="dash-lower">
+
+      <!-- Per Share + Progress -->
+      <div class="dash-card dash-share-card">
+        <h3 class="dash-card-title"><i class="fas fa-user-tag"></i> Per Share</h3>
+        <div class="per-share-amount" id="dashPerShare">৳ 0</div>
+        <p class="per-share-sub">Each shareholder's portion</p>
+        <div class="share-breakdown" id="dashShareBreakdown"></div>
+      </div>
+
+      <!-- Delivery Progress -->
+      <div class="dash-card dash-progress-card">
+        <h3 class="dash-card-title"><i class="fas fa-truck"></i> Delivery Progress</h3>
+        <div class="progress-ring-wrap">
+          <svg class="progress-ring" width="140" height="140" viewBox="0 0 140 140">
+            <circle class="ring-bg" cx="70" cy="70" r="58" />
+            <circle class="ring-fill" id="ringFill" cx="70" cy="70" r="58" />
+          </svg>
+          <div class="ring-center-text">
+            <span id="ringPercent">0%</span>
+            <small>Done</small>
+          </div>
+        </div>
+        <div class="progress-legend">
+          <span class="leg-dot leg-green"></span><span>Done</span>
+          <span class="leg-dot leg-yellow"></span><span>Partial</span>
+          <span class="leg-dot leg-red"></span><span>Pending</span>
+        </div>
+      </div>
+
+      <!-- Expense Breakdown -->
+      <div class="dash-card dash-breakdown-card">
+        <h3 class="dash-card-title"><i class="fas fa-chart-bar"></i> Expense Breakdown</h3>
+        <div class="expense-bars" id="expenseBars">
+          <div class="empty-state"><i class="fas fa-receipt"></i><p>No expenses added yet</p></div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="dash-card dash-activity-card">
+        <h3 class="dash-card-title"><i class="fas fa-history"></i> Recent Activity</h3>
+        <div class="activity-feed" id="activityFeed">
+          <div class="empty-state"><i class="fas fa-bell-slash"></i><p>No activity yet</p></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== EXPENSE TRACKER ===== -->
+  <section class="app-section hidden" id="expense">
+    <div class="section-header">
+      <div class="section-badge"><i class="fas fa-coins"></i></div>
+      <h2 class="section-title">Expense Tracker</h2>
+      <p class="section-subtitle">Record all your Qurbani expenses here</p>
+    </div>
+
+    <div class="expense-layout">
+
+      <!-- Add Expense Form -->
+      <div class="glass-card form-card">
+        <h3 class="card-heading"><i class="fas fa-plus-circle"></i> Add Expense</h3>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Animal Purchase Cost (৳)</label>
+            <div class="input-wrap"><i class="fas fa-cow"></i>
+              <input type="number" id="animalCost" placeholder="0.00" min="0" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Butcher Fee (৳)</label>
+            <div class="input-wrap"><i class="fas fa-cut"></i>
+              <input type="number" id="butcherCost" placeholder="0.00" min="0" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Transport Cost (৳)</label>
+            <div class="input-wrap"><i class="fas fa-truck"></i>
+              <input type="number" id="transportCost" placeholder="0.00" min="0" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Additional Expenses (৳)</label>
+            <div class="input-wrap"><i class="fas fa-plus"></i>
+              <input type="number" id="extraCost" placeholder="0.00" min="0" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Number of Shareholders (1–7)</label>
+          <div class="share-selector">
+            <button class="share-btn" data-val="1">1</button>
+            <button class="share-btn" data-val="2">2</button>
+            <button class="share-btn" data-val="3">3</button>
+            <button class="share-btn" data-val="4">4</button>
+            <button class="share-btn" data-val="5">5</button>
+            <button class="share-btn" data-val="6">6</button>
+            <button class="share-btn" data-val="7">7</button>
+          </div>
+        </div>
+
+        <div class="contributors-section" id="contributorsSection">
+          <label>Shareholder Names</label>
+          <div class="contributors-list" id="contributorsList"></div>
+        </div>
+
+        <div class="live-total-box">
+          <div class="live-total-row">
+            <span>Animal Cost</span><span id="lt_animal">৳ 0</span>
+          </div>
+          <div class="live-total-row">
+            <span>Butcher</span><span id="lt_butcher">৳ 0</span>
+          </div>
+          <div class="live-total-row">
+            <span>Transport</span><span id="lt_transport">৳ 0</span>
+          </div>
+          <div class="live-total-row">
+            <span>Additional</span><span id="lt_extra">৳ 0</span>
+          </div>
+          <div class="live-total-row total-row">
+            <span>Total Expense</span><span id="lt_total">৳ 0</span>
+          </div>
+          <div class="live-total-row per-row">
+            <span>Per Shareholder</span><span id="lt_per">৳ 0</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-primary" id="saveExpenseBtn"><i class="fas fa-save"></i> Save</button>
+          <button class="btn-ghost" id="clearExpenseBtn"><i class="fas fa-redo"></i> Clear</button>
+        </div>
+      </div>
+
+      <!-- Expense Summary Panel -->
+      <div class="expense-summary-panel">
+        <div class="glass-card summary-card">
+          <h3 class="card-heading"><i class="fas fa-receipt"></i> Saved Data</h3>
+          <div class="saved-expense-display" id="savedExpenseDisplay">
+            <div class="empty-state"><i class="fas fa-file-invoice"></i><p>Nothing saved yet</p></div>
+          </div>
+        </div>
+
+        <div class="glass-card tips-card">
+          <h3 class="card-heading"><i class="fas fa-lightbulb"></i> Remember</h3>
+          <ul class="tips-list">
+            <li><i class="fas fa-star"></i> Up to 7 shareholders allowed for cow/camel</li>
+            <li><i class="fas fa-star"></i> Every shareholder's intention must be sincere</li>
+            <li><i class="fas fa-star"></i> Selling any part of Qurbani is not permissible</li>
+            <li><i class="fas fa-star"></i> Meat cannot be given as butcher's wage</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== MEAT DISTRIBUTION ===== -->
+  <section class="app-section hidden" id="distribution">
+    <div class="section-header">
+      <div class="section-badge"><i class="fas fa-drumstick-bite"></i></div>
+      <h2 class="section-title">Meat Distribution</h2>
+      <p class="section-subtitle">Complete tracking of your meat distribution</p>
+    </div>
+
+    <div class="dist-layout">
+
+      <!-- Add Recipient -->
+      <div class="glass-card form-card">
+        <h3 class="card-heading"><i class="fas fa-user-plus"></i> Add Recipient</h3>
+
+        <div class="form-group">
+          <label>Recipient Name</label>
+          <div class="input-wrap"><i class="fas fa-user"></i>
+            <input type="text" id="recipientName" placeholder="Enter name..." />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Category</label>
+          <div class="category-selector">
+            <button class="cat-btn active" data-cat="family"><i class="fas fa-home"></i> Family</button>
+            <button class="cat-btn" data-cat="relatives"><i class="fas fa-users"></i> Relatives</button>
+            <button class="cat-btn" data-cat="neighbours"><i class="fas fa-house-user"></i> Neighbours</button>
+            <button class="cat-btn" data-cat="needy"><i class="fas fa-hand-holding-heart"></i> Needy</button>
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Share Amount (kg)</label>
+            <div class="input-wrap"><i class="fas fa-weight"></i>
+              <input type="number" id="meatShare" placeholder="0.0" min="0" step="0.1" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Initial Status</label>
+            <select id="initialStatus" class="styled-select">
+              <option value="pending">🔴 Pending</option>
+              <option value="partial">🟡 Partial</option>
+              <option value="done">🟢 Done</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Note (optional)</label>
+          <div class="input-wrap"><i class="fas fa-sticky-note"></i>
+            <input type="text" id="recipientNote" placeholder="Any special instructions..." />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-primary" id="addRecipientBtn"><i class="fas fa-plus"></i> Add</button>
+        </div>
+      </div>
+
+      <!-- Distribution Panel -->
+      <div class="dist-main-panel">
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="family"><i class="fas fa-home"></i> Family</button>
+          <button class="filter-btn" data-filter="relatives"><i class="fas fa-users"></i> Relatives</button>
+          <button class="filter-btn" data-filter="neighbours"><i class="fas fa-house-user"></i> Neighbours</button>
+          <button class="filter-btn" data-filter="needy"><i class="fas fa-hand-holding-heart"></i> Needy</button>
+        </div>
+
+        <!-- Status Summary Bar -->
+        <div class="status-summary-bar">
+          <div class="ssb-item ssb-pending"><span id="ssbPending">0</span><small>Pending</small></div>
+          <div class="ssb-item ssb-partial"><span id="ssbPartial">0</span><small>Partial</small></div>
+          <div class="ssb-item ssb-done"><span id="ssbDone">0</span><small>Done</small></div>
+          <div class="ssb-item ssb-total"><span id="ssbTotal">0</span><small>Total</small></div>
+        </div>
+
+        <!-- Recipients List -->
+        <div class="recipients-list" id="recipientsList">
+          <div class="empty-state large-empty">
+            <i class="fas fa-drumstick-bite"></i>
+            <p>No recipients added yet</p>
+            <small>Use the form on the left to add recipients</small>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MASAIL SECTION ===== -->
+  <section class="app-section hidden" id="masail">
+    <div class="section-header">
+      <div class="section-badge"><i class="fas fa-book-open"></i></div>
+      <h2 class="section-title">কুরবানির মাসাইল</h2>
+      <p class="section-subtitle">ইসলামিক নির্দেশিকা — গুরুত্বপূর্ণ বিধি-বিধান</p>
+    </div>
+
+    <div class="masail-intro-verse">
+      <p class="arabic-text">﴿ فَصَلِّ لِرَبِّكَ وَانْحَرْ ﴾</p>
+      <p class="verse-translation">অতএব তোমার পালনকর্তার উদ্দেশ্যে নামায পড়ো ও কুরবানি করো। — সূরা কাওসার</p>
+    </div>
+
+    <div class="masail-search-wrap">
+      <div class="masail-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="masailSearch" placeholder="মাসাইল খুঁজুন..." />
+      </div>
+    </div>
+
+    <div class="masail-grid" id="masailGrid">
+
+      <!-- Masail Card 1 -->
+      <div class="masail-card" data-topic="ওয়াজিব">
+        <div class="masail-card-header">
+          <div class="masail-icon">⭐</div>
+          <div class="masail-card-title">কার উপর কুরবানি ওয়াজিব</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>প্রাপ্তবয়স্ক, মুসলিম ও সুস্থ মস্তিষ্কের ব্যক্তির উপর কুরবানি ওয়াজিব</li>
+            <li>১০ জিলহজ ফজর থেকে ১২ জিলহজ সূর্যাস্ত পর্যন্ত সময়ের মধ্যে নিসাব পরিমাণ সম্পদের মালিক হলে কুরবানি ওয়াজিব</li>
+            <li>নিসাব = প্রয়োজনের অতিরিক্ত সম্পদ (প্রায় ৫২.৫ তোলা রূপার সমমূল্য)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 2 -->
+      <div class="masail-card" data-topic="পশু">
+        <div class="masail-card-header">
+          <div class="masail-icon">🐄</div>
+          <div class="masail-card-title">কোন পশু দিয়ে কুরবানি করা যাবে</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>গরু, ছাগল, ভেড়া, উট ও মহিষ দ্বারা কুরবানি জায়েজ</li>
+            <li>হরিণ বা বন্য পশু দ্বারা কুরবানি হবে না</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 3 -->
+      <div class="masail-card" data-topic="বয়স">
+        <div class="masail-card-header">
+          <div class="masail-icon">📏</div>
+          <div class="masail-card-title">পশুর বয়সের শর্ত</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>উট: কমপক্ষে ৫ বছর</li>
+            <li>গরু/মহিষ: কমপক্ষে ২ বছর</li>
+            <li>ছাগল/ভেড়া: কমপক্ষে ১ বছর</li>
+            <li>ভেড়া হৃষ্টপুষ্ট হলে ৬ মাস হলেও চলবে</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 4 -->
+      <div class="masail-card" data-topic="অসুস্থ">
+        <div class="masail-card-header">
+          <div class="masail-icon">🩺</div>
+          <div class="masail-card-title">দুর্বল বা অসুস্থ পশু</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>খুব দুর্বল বা হাঁটতে না পারা পশু দ্বারা কুরবানি হবে না</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 5 -->
+      <div class="masail-card" data-topic="দাঁত">
+        <div class="masail-card-header">
+          <div class="masail-icon">🦷</div>
+          <div class="masail-card-title">দাঁত নেই এমন পশু</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>ঘাস চিবিয়ে খেতে পারলে কুরবানি জায়েজ</li>
+            <li>না পারলে কুরবানি হবে না</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 6 -->
+      <div class="masail-card" data-topic="শিং কান লেজ">
+        <div class="masail-card-header">
+          <div class="masail-icon">🐐</div>
+          <div class="masail-card-title">শিং, কান বা লেজ কাটা পশু</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>অর্ধেক বা তার বেশি কাটা হলে কুরবানি হবে না</li>
+            <li>অর্ধেকের কম হলে জায়েজ</li>
+            <li>জন্মগতভাবে ছোট কান হলে সমস্যা নেই</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 7 -->
+      <div class="masail-card" data-topic="ভাগ শরীক">
+        <div class="masail-card-header">
+          <div class="masail-icon">👥</div>
+          <div class="masail-card-title">ভাগ (Share) নিয়ম</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>গরু/উট/মহিষে সর্বোচ্চ ৭ জন শরীক হতে পারে</li>
+            <li>১ থেকে ৭ পর্যন্ত যেকোনো ভাগ করা যায়</li>
+            <li>সমান ভাগ হওয়া জরুরি নয়</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 8 -->
+      <div class="masail-card" data-topic="আকীকা">
+        <div class="masail-card-header">
+          <div class="masail-icon">🧑‍🤝‍🧑</div>
+          <div class="masail-card-title">আকীকার অংশ কুরবানিতে</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>কুরবানির পশুতে আকীকা করা জায়েজ</li>
+            <li>একই পশুতে কুরবানি ও আকীকা সহীহ</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 9 -->
+      <div class="masail-card" data-topic="হারাম উপার্জন">
+        <div class="masail-card-header">
+          <div class="masail-icon">💰</div>
+          <div class="masail-card-title">হারাম উপার্জন সংক্রান্ত</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>শরীকদের অধিকাংশ টাকা হারাম হলে কুরবানি সহীহ হবে না</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 10 -->
+      <div class="masail-card" data-topic="পরে শরীক">
+        <div class="masail-card-header">
+          <div class="masail-icon">🐄</div>
+          <div class="masail-card-title">একা পশু কিনে পরে শরীক করা</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>ধনী ব্যক্তি চাইলে পরে অন্যকে শরীক করতে পারে</li>
+            <li>তবে একা কুরবানি করা উত্তম</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 11 -->
+      <div class="masail-card" data-topic="মৃত">
+        <div class="masail-card-header">
+          <div class="masail-icon">⚰️</div>
+          <div class="masail-card-title">মৃত ব্যক্তির পক্ষ থেকে কুরবানি</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>জায়েজ</li>
+            <li>ওসিয়ত না থাকলে নফল</li>
+            <li>ওসিয়ত থাকলে গোশত সদকা করতে হবে</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 12 -->
+      <div class="masail-card" data-topic="বিক্রি">
+        <div class="masail-card-header">
+          <div class="masail-icon">🕌</div>
+          <div class="masail-card-title">কুরবানির অংশ বিক্রি করা</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>কুরবানির কোনো অংশ বিক্রি করা জায়েজ নয়</li>
+            <li>বিক্রি করলে মূল্য সদকা করতে হবে</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 13 -->
+      <div class="masail-card" data-topic="পারিশ্রমিক">
+        <div class="masail-card-header">
+          <div class="masail-icon">👨‍🍳</div>
+          <div class="masail-card-title">জবাইকারীর পারিশ্রমিক</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>পারিশ্রমিক দেওয়া জায়েজ</li>
+            <li>কিন্তু গোশত পারিশ্রমিক হিসেবে দেওয়া যাবে না</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 14 -->
+      <div class="masail-card" data-topic="বিদেশ">
+        <div class="masail-card-header">
+          <div class="masail-icon">🌍</div>
+          <div class="masail-card-title">বিদেশে অবস্থান করলে কুরবানি</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list">
+            <li>যেকোনো দেশে কুরবানি করা জায়েজ</li>
+            <li>পশু যেখানে আছে সেখানে ঈদের নামাজ হয়ে গেলে কুরবানি করা যাবে</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Masail Card 15 -->
+      <div class="masail-card" data-topic="ভুল ধারণা">
+        <div class="masail-card-header">
+          <div class="masail-icon">🧠</div>
+          <div class="masail-card-title">সাধারণ ভুল ধারণা</div>
+          <div class="masail-toggle"><i class="fas fa-chevron-down"></i></div>
+        </div>
+        <div class="masail-card-body">
+          <ul class="masail-list warning-list">
+            <li><i class="fas fa-times-circle"></i> কম বয়সের পশু কুরবানি করা</li>
+            <li><i class="fas fa-times-circle"></i> অসুস্থ পশু কেনা</li>
+            <li><i class="fas fa-times-circle"></i> কুরবানির অংশ বিক্রি করা</li>
+            <li><i class="fas fa-times-circle"></i> যেকোনো পশু দিয়ে কুরবানি হবে মনে করা</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ===== SUMMARY ===== -->
+  <section class="app-section hidden" id="summary">
+    <div class="section-header">
+      <div class="section-badge"><i class="fas fa-chart-pie"></i></div>
+      <h2 class="section-title">Final Summary</h2>
+      <p class="section-subtitle">Complete Qurbani report</p>
+    </div>
+
+    <div class="summary-layout">
+
+      <div class="glass-card summary-main-card">
+        <div class="summary-top">
+          <div class="summary-brand-icon">☽</div>
+          <h3>Qurbani for Allah</h3>
+          <p class="summary-sub" id="sumDate">—</p>
+        </div>
+
+        <div class="summary-stats-grid">
+          <div class="sum-stat">
+            <i class="fas fa-coins"></i>
+            <div>
+              <div class="sum-stat-val" id="sumTotalExp">৳ 0</div>
+              <div class="sum-stat-label">Total Expense</div>
+            </div>
+          </div>
+          <div class="sum-stat">
+            <i class="fas fa-user-tag"></i>
+            <div>
+              <div class="sum-stat-val" id="sumPerShare">৳ 0</div>
+              <div class="sum-stat-label">Per Shareholder</div>
+            </div>
+          </div>
+          <div class="sum-stat">
+            <i class="fas fa-users"></i>
+            <div>
+              <div class="sum-stat-val" id="sumSharers">0</div>
+              <div class="sum-stat-label">Total Shareholders</div>
+            </div>
+          </div>
+          <div class="sum-stat">
+            <i class="fas fa-check-double"></i>
+            <div>
+              <div class="sum-stat-val" id="sumDelivery">0%</div>
+              <div class="sum-stat-label">Delivered</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-breakdown">
+          <h4>Expense Details</h4>
+          <div id="sumBreakdown" class="sum-breakdown-rows"></div>
+        </div>
+
+        <div class="summary-sharers">
+          <h4>Shareholders List</h4>
+          <div id="sumSharers_list" class="sum-sharers-grid"></div>
+        </div>
+
+        <div class="summary-dist">
+          <h4>Distribution List</h4>
+          <div id="sumDistList" class="sum-dist-rows"></div>
+        </div>
+
+        <div class="summary-actions">
+          <button class="btn-primary" onclick="exportData()"><i class="fas fa-download"></i> JSON Export</button>
+          <button class="btn-ghost" onclick="printSummary()"><i class="fas fa-print"></i> Print</button>
+          <button class="btn-danger" onclick="clearAllData()"><i class="fas fa-trash"></i> Clear All</button>
+        </div>
+      </div>
+
+      <div class="glass-card dua-card">
+        <h3 class="card-heading"><i class="fas fa-pray"></i> Qurbani Du'a</h3>
+        <div class="dua-arabic">بِسْمِ اللهِ وَاللهُ أَكْبَرُ، اللَّهُمَّ مِنْكَ وَلَكَ</div>
+        <p class="dua-bangla">Bismillahi wallahu akbar, Allahumma minka wa laka.<br/>In the name of Allah, Allah is the Greatest. O Allah! This is from You and for You.</p>
+
+        <div class="islamic-quote">
+          <i class="fas fa-quote-left"></i>
+          <p>For every hair of the Qurbani animal, you receive a reward from Allah.</p>
+          <small>— Sahih Ibn Majah</small>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-crescent">☽</span>
+      <span>Qurbani for Allah</span>
+    </div>
+    <div class="footer-verse">لِلَّهِ وَلِرَسُولِهِ</div>
+    <div class="footer-watermark">✦ Tahsin Jawad ✦</div>
+  </div>
+</footer>
+
+<!-- ==================== TOAST NOTIFICATIONS ==================== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="script.js" defer></script>
 </body>
 </html>

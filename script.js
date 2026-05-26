@@ -179,8 +179,8 @@ function updateCountdown() {
   document.getElementById('cdSecs').textContent  = secs;
 }
 
-// ===== BANGLA NUMBER CONVERTER =====
-function n {
+// ===== BANGLA NUMBER CONVERTER (kept for Masail section internal use) =====
+function toBanglaNum(n) {
   const digits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
   return String(n).split('').map(d => digits[+d] ?? d).join('');
 }

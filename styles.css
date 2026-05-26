@@ -406,15 +406,15 @@ body {
 /* Hero visual decoration */
 .hero-visual { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
 .hero-lantern {
-  position: absolute; font-size: 3rem; opacity: 0.25;
-  animation: lanternSway 4s ease-in-out infinite alternate;
-  filter: drop-shadow(0 0 10px var(--gold));
+  position: absolute; font-size: 4rem; opacity: 0.3;
+  animation: animalFloat 5s ease-in-out infinite alternate;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));
 }
-.hero-lantern1 { top: 18%; left: 5%; animation-delay: 0s; }
-.hero-lantern2 { top: 25%; right: 5%; animation-delay: -2s; }
-@keyframes lanternSway {
-  0%   { transform: rotate(-8deg) translateY(0); }
-  100% { transform: rotate(8deg)  translateY(-12px); }
+.hero-lantern1 { top: 22%; left: 6%; animation-delay: 0s; font-size: 4.5rem; }
+.hero-lantern2 { top: 28%; right: 6%; animation-delay: -2.5s; font-size: 3.8rem; }
+@keyframes animalFloat {
+  0%   { transform: translateY(0px) scale(1); }
+  100% { transform: translateY(-18px) scale(1.06); }
 }
 .hero-moon {
   position: absolute; top: 12%; right: 12%;
